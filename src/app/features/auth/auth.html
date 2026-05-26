@@ -1,0 +1,181 @@
+<div
+  class="flex h-full auth-theme py-0 sm:py-12"
+  animate.enter="enter-animation"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+>
+  <div
+    class="relative my-0 sm:m-auto w-full sm:w-120 rounded-none sm:rounded-3xl dark:bg-gray-800 bg-gray-200 py-12 overflow-hidden"
+  >
+    @if (isLoading()) {
+      <mat-progress-bar mode="indeterminate" class="absolute -top-12 left-0 z-50" />
+      <div class="absolute inset-0 z-40 bg-black/20 backdrop-blur-[0.5px] cursor-not-allowed"></div>
+    }
+
+    @if (isLoginSection()) {
+      <div
+        class="m-auto w-2/3 h-full flex flex-col justify-center gap-8 transition-opacity duration-200"
+      >
+        <div class="flex flex-col gap-4">
+          <h1 class="text-3xl lg:text-4xl">Iniciar una sesión</h1>
+
+          <div>
+            <span>¿No tiene cuenta? </span>
+            <button
+              class="text-primary cursor-pointer hover:underline"
+              (click)="isLoginSection.set(false)"
+            >
+              <span>Crear cuenta</span>
+            </button>
+          </div>
+        </div>
+
+        <form class="w-full" (submit)="login($event)">
+          <div class="flex flex-col w-full gap-1">
+            <mat-form-field hideRequiredMarker>
+              <mat-label>Usuario</mat-label>
+
+              <input cdkFocusInitial matInput type="text" [formField]="formAuth.username" />
+
+              @if (formAuth.username().touched() && formAuth.username().invalid()) {
+                <mat-error>
+                  {{ formAuth.username().errors()[0].message }}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field hideRequiredMarker>
+              <mat-label>Contraseña</mat-label>
+
+              <input
+                matInput
+                [type]="hidePassword() ? 'password' : 'text'"
+                [formField]="formAuth.password"
+              />
+
+              <button type="button" matIconButton matSuffix (click)="toggleHidePassword($event)">
+                <mat-icon>
+                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+
+              @if (formAuth.password().touched() && formAuth.password().invalid()) {
+                <mat-error>
+                  {{ formAuth.password().errors()[0].message }}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <div class="flex flex-col gap-4">
+              <button matButton="filled" [disabled]="formAuth().invalid() || isLoading()">
+                Iniciar sesión
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    } @else {
+      <div
+        class="m-auto w-2/3 h-full flex flex-col justify-center gap-8 transition-opacity duration-200"
+      >
+        <div class="flex flex-col gap-4">
+          <h1 class="text-3xl lg:text-4xl">Crear una cuenta</h1>
+
+          <div>
+            <span>¿Ya tienes una cuenta? </span>
+            <button
+              class="text-primary cursor-pointer hover:underline"
+              (click)="isLoginSection.set(true)"
+            >
+              <span>Iniciar sesión</span>
+            </button>
+          </div>
+        </div>
+
+        <form class="w-full" (submit)="create($event)">
+          <div class="flex flex-col w-full gap-1">
+            <mat-form-field hideRequiredMarker>
+              <mat-label>Usuario</mat-label>
+
+              <input cdkFocusInitial matInput type="text" [formField]="formCreateAuth.username" />
+
+              @if (formCreateAuth.username().touched() && formCreateAuth.username().invalid()) {
+                <mat-error>
+                  {{ formCreateAuth.username().errors()[0].message }}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field hideRequiredMarker>
+              <mat-label>Contraseña</mat-label>
+
+              <input
+                matInput
+                [type]="hidePassword() ? 'password' : 'text'"
+                [formField]="formCreateAuth.password"
+              />
+
+              <button type="button" matIconButton matSuffix (click)="toggleHidePassword($event)">
+                <mat-icon>
+                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+
+              @if (formCreateAuth.password().touched() && formCreateAuth.password().invalid()) {
+                <mat-error>
+                  {{ formCreateAuth.password().errors()[0].message }}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field hideRequiredMarker>
+              <mat-label>Confirmar contraseña</mat-label>
+
+              <input
+                matInput
+                [type]="hideConfirmPassword() ? 'password' : 'text'"
+                [formField]="formCreateAuth.confirmPassword"
+              />
+
+              <button
+                type="button"
+                matIconButton
+                matSuffix
+                (click)="toggleHideConfirmPassword($event)"
+              >
+                <mat-icon>
+                  {{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+
+              @if (
+                formCreateAuth.confirmPassword().touched() &&
+                formCreateAuth.confirmPassword().invalid()
+              ) {
+                <mat-error>
+                  {{ formCreateAuth.confirmPassword().errors()[0].message }}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field hideRequiredMarker>
+              <mat-label>Email (opcional)</mat-label>
+              <input matInput type="email" [formField]="formCreateAuth.email" />
+              @if (formCreateAuth.email().touched() && formCreateAuth.email().invalid()) {
+                <mat-error>
+                  {{ formCreateAuth.email().errors()[0].message }}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <div class="flex flex-col gap-4">
+              <button matButton="filled" [disabled]="formCreateAuth().invalid() || isLoading()">
+                Crear cuenta
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</div>

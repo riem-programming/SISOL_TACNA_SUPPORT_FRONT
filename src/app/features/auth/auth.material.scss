@@ -1,0 +1,11 @@
+@use '@angular/material' as mat;
+
+.auth-theme {
+  @include mat.button-overrides(
+    (
+      filled-container-shape: var(--mat-sys-corner-extra-small),
+      filled-container-height: 56px,
+      filled-label-text-size: 1.1rem,
+    )
+  );
+}

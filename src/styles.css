@@ -1,3 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
+
+@theme inline {
+    /* --color-test: #ff0000; */
+    /* tambien se puede declarar el tipo de typografia */
+    /* --font-orbitron: "Orbitron", sans-serif; */
+}
+
+* {
+    box-sizing: border-box;
+}
+
+:root, body {
+    width: 100%;
+    height: 100%
+}
