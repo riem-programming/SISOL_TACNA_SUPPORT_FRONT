@@ -1,0 +1,29 @@
+<header class="w-full flex justify-between items-center px-2 sm:px-4 md:px-8 py-2 sm:py-4 border-b">
+  <div class="flex items-center gap-0 md:gap-2">
+    <button
+      (click)="goToHome()"
+      class="header-button-theme"
+      matIconButton
+      aria-label="Botón ícono para ir al inicio"
+    >
+      <mat-icon class="scale-125">support_agent</mat-icon>
+    </button>
+    <div class="flex flex-col">
+      <span class="text-xl">Soporte</span>
+      <span class="hidden md:block text-xs">{{ currentUser()?.username }}</span>
+    </div>
+  </div>
+  <div>
+    <div class="hidden md:block my-button">
+      <button (click)="logOunt()" matButton>
+        <mat-icon>logout</mat-icon>
+        Salir
+      </button>
+    </div>
+    <div class="block md:hidden">
+      <button (click)="goToHome()" matIconButton aria-label="Botón ícono para salir">
+        <mat-icon class="scale-75">logout</mat-icon>
+      </button>
+    </div>
+  </div>
+</header>

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { Header } from './components/header/header';
 
 @Component({
   selector: 'app-panel',
-  imports: [],
+  imports: [Header],
   templateUrl: './panel.html',
   styleUrl: './panel.css',
 })
