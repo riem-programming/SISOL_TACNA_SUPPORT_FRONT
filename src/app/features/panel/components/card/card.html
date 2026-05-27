@@ -1,0 +1,54 @@
+<div
+  class="gap-2 sm:gap-6 rounded-xl border py-6 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-200"
+>
+  <div
+    class="grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-2 sm:pb-4"
+  >
+    <div class="flex items-center gap-3">
+      <div class="flex">
+        <mat-icon class="scale-125" aria-hidden="false" [fontIcon]="value().nameIcon"></mat-icon>
+      </div>
+      <div class="flex-1">
+        <div class="font-semibold text-lg">{{ value().title }}</div>
+        <div class="hidden sm:block text-xs sm:text-sm">{{ value().subtitle }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="px-6 flex-1 flex flex-col justify-between pt-0">
+    <p class="text-sm mb-4">
+      {{ value().description }}
+    </p>
+
+    @if (value().primary) {
+      <button
+        type="button"
+        [disabled]="disabled()"
+        (click)="managerClickButton()"
+        matButton="filled"
+      >
+        {{ value().nameButton }}
+        <mat-icon
+          iconPositionEnd
+          class="scale-125"
+          aria-hidden="false"
+          fontIcon="arrow_forward"
+        ></mat-icon>
+      </button>
+    } @else {
+      <button
+        type="button"
+        [disabled]="disabled()"
+        (click)="managerClickButton()"
+        matButton="outlined"
+      >
+        {{ value().nameButton }}
+        <mat-icon
+          iconPositionEnd
+          class="scale-125"
+          aria-hidden="false"
+          fontIcon="arrow_forward"
+        ></mat-icon>
+      </button>
+    }
+  </div>
+</div>

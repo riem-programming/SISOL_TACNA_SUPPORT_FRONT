@@ -5,16 +5,15 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./features/auth/auth'),
-    title: 'RS Studio: Acceso',
+    title: 'Inicio de sesión',
   },
   {
     path: 'panel',
-    loadComponent: () => import('./features/panel/panel'),
-    title: 'RS Studio',
+    loadChildren: () => import('./features/panel/panel.routes'),
     canActivate: [authGuard],
   },
   {
     path: '**',
-    redirectTo: 'panel',
+    redirectTo: '',
   },
 ];

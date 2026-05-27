@@ -1,0 +1,15 @@
+<section class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="hidden sm:block mb-8 space-y-2">
+      <h2 class="text-2xl sm:text-3xl font-bold">Panel de Control</h2>
+      <p class="text-sm sm:text-base">
+        Gestiona tus solicitudes de soporte técnico de manera eficiente
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+      <app-card [value]="valueCreateCard" (onClickButton)="navegateToCreateRequest()" />
+      <app-card [value]="valueMyRequestCard" (onClickButton)="navegateToMyRequest()" />
+    </div>
+  </div>
+</section>
