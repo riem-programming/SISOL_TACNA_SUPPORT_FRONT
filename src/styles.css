@@ -6,6 +6,7 @@
     /* --color-test: #ff0000; */
     /* tambien se puede declarar el tipo de typografia */
     /* --font-orbitron: "Orbitron", sans-serif; */
+  --color-primary-border: var(--mat-sys-primary);
 }
 
 * {

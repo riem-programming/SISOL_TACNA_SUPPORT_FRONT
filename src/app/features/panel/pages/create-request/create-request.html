@@ -1,1 +1,412 @@
-<p>create-request works!</p>
+<section class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto">
+    <div class="hidden sm:block mb-8 space-y-2">
+      <h2 class="text-2xl sm:text-3xl font-bold">Crear Nueva Solicitud</h2>
+      <p class="text-sm sm:text-base">Sigue los pasos para crear una solicitud de soporte</p>
+    </div>
+    <div class="mb-8 space-y-2">
+      <mat-stepper linear #stepper>
+        <mat-step [completed]="formCreate.requestTypeId().valid()">
+          <app-stepper-card>
+            <div class="space-y-2">
+              <h3 class="text-lg font-semibold">Tipo de Solicitud</h3>
+              <p class="hidden sm:block text-sm">
+                Selecciona el tipo de problema o solicitud que tienes
+              </p>
+            </div>
+            <div class="grid grid-cols-1 gap-3 sm:gap-4">
+              @for (item of requestTypes(); track item.id) {
+                <app-stepper-button
+                  [title]="item.short_name"
+                  [description]="item.long_name"
+                  [emoji]="item.emoji"
+                  key="requestType"
+                  [index]="item.id"
+                  (onClickButton)="updateState('requestType', item.id)"
+                />
+              }
+            </div>
+            <button
+              (click)="navegateNext('requestType')"
+              [disabled]="isKeyRequestTypeOk() === null"
+              class="w-full mt-4"
+              type="button"
+              matButton="filled"
+            >
+              Siguiente
+              <mat-icon
+                iconPositionEnd
+                class="hidden! sm:inline-block! scale-125"
+                aria-hidden="false"
+                fontIcon="arrow_forward"
+              ></mat-icon>
+            </button>
+          </app-stepper-card>
+        </mat-step>
+        @let codeRequest = currentRequestType()?.code ?? '';
+        @if (
+          codeRequest !== '' &&
+          codeRequest !== 'TICKET_RELEASE_LT30' &&
+          codeRequest !== 'TICKET_UNLOCK_GT30' &&
+          codeRequest !== 'CREDIT_NOTE_CREATE' &&
+          codeRequest !== 'CREDIT_NOTE_REVERT' &&
+          codeRequest !== 'USR_CREATE'
+        ) {
+          <mat-step [completed]="formCreate.supportModeId().valid()">
+            <app-stepper-card>
+              <div class="space-y-2">
+                <h3 class="text-lg font-semibold">Modalidad de Soporte</h3>
+                <p class="hidden sm:block text-sm">¿Prefieres soporte virtual o presencial?</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                @for (item of supportModes(); track item.id) {
+                  <app-stepper-button
+                    [title]="item.short_name"
+                    [description]="item.long_name"
+                    [emoji]="item.emoji"
+                    key="supportMode"
+                    [index]="item.id"
+                    (onClickButton)="updateState('supportMode', item.id)"
+                    [isHorizontal]="false"
+                  />
+                }
+              </div>
+              <div class="flex gap-0 sm:gap-4 flex-col-reverse sm:flex-row">
+                <button
+                  (click)="navegatePrevious()"
+                  class="w-full mt-4"
+                  type="button"
+                  matButton="outlined"
+                >
+                  Atras
+                  <mat-icon
+                    class="hidden! sm:inline-block! scale-125"
+                    aria-hidden="false"
+                    fontIcon="arrow_back"
+                  ></mat-icon>
+                </button>
+                <button
+                  (click)="navegateNext('supportMode')"
+                  [disabled]="isKeySupportModeOk() === null"
+                  class="w-full mt-4"
+                  type="button"
+                  matButton="filled"
+                >
+                  Siguiente
+                  <mat-icon
+                    iconPositionEnd
+                    class="hidden! sm:inline-block! scale-125"
+                    aria-hidden="false"
+                    fontIcon="arrow_forward"
+                  ></mat-icon>
+                </button>
+              </div>
+            </app-stepper-card>
+          </mat-step>
+        }
+
+        <mat-step [completed]="formCreate.priorityId().valid()">
+          <app-stepper-card>
+            <div class="space-y-2">
+              <h3 class="text-lg font-semibold">Nivel de Prioridad</h3>
+              <p class="hidden sm:block text-sm">¿Cuál es la urgencia de tu solicitud?</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              @for (item of priorities(); track item.id) {
+                <app-stepper-button
+                  [title]="item.short_name"
+                  [description]="item.long_name"
+                  [emoji]="item.emoji"
+                  key="priority"
+                  [index]="item.id"
+                  (onClickButton)="updateState('priority', item.id)"
+                  [isHorizontal]="false"
+                />
+              }
+            </div>
+
+            <div class="flex gap-0 sm:gap-4 flex-col-reverse sm:flex-row">
+              <button
+                (click)="navegatePrevious()"
+                class="w-full mt-4"
+                type="button"
+                matButton="outlined"
+              >
+                Atras
+                <mat-icon
+                  class="hidden! sm:inline-block! scale-125"
+                  aria-hidden="false"
+                  fontIcon="arrow_back"
+                ></mat-icon>
+              </button>
+              <button
+                (click)="navegateNext('priority')"
+                [disabled]="isKeyPriorityOk() === null"
+                class="w-full mt-4"
+                type="button"
+                matButton="filled"
+              >
+                Siguiente
+                <mat-icon
+                  iconPositionEnd
+                  class="hidden! sm:inline-block! scale-125"
+                  aria-hidden="false"
+                  fontIcon="arrow_forward"
+                ></mat-icon>
+              </button>
+            </div>
+          </app-stepper-card>
+        </mat-step>
+
+        <mat-step>
+          <app-stepper-card>
+            <div class="space-y-2">
+              <h3 class="text-lg font-semibold">Detalle de la Solicitud</h3>
+              <p class="hidden sm:block text-sm">
+                Tipo <strong>{{ currentRequestType()?.short_name }}</strong>
+              </p>
+            </div>
+
+            <div class="mb-8">
+              <mat-divider></mat-divider>
+            </div>
+
+            @if (
+              codeRequest === 'OTHER' ||
+              codeRequest === 'SYSTEM_ISSUE' ||
+              codeRequest === 'SIGNATURE_ISSUE'
+            ) {
+              <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                @if (currentSupportMode()?.code === 'in-person') {
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <mat-form-field class="sm:col-span-2">
+                      <mat-label>Especialidad</mat-label>
+                      <input
+                        [formField]="formCreate.speciality"
+                        type="text"
+                        placeholder="Ej: Traumatología"
+                        matInput
+                        [matAutocomplete]="auto"
+                      />
+
+                      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+                        @for (option of filteredSpecialtiesOption(); track option) {
+                          <mat-option [value]="option.label">
+                            {{ option.label }}
+                          </mat-option>
+                        }
+                      </mat-autocomplete>
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>N° consultorio</mat-label>
+                      <input [formField]="formCreate.officeNumber" matInput placeholder="Ej: 35" />
+                    </mat-form-field>
+                  </div>
+                } @else {
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <mat-form-field>
+                      <mat-label>Número de contacto</mat-label>
+                      <input
+                        [formField]="formCreate.contactPhone"
+                        matInput
+                        placeholder="Ej: 987712712"
+                      />
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>Código AnyDesk (opcional)</mat-label>
+                      <input
+                        [formField]="formCreate.anydeskCode"
+                        matInput
+                        placeholder="Ej: 1248132109"
+                      />
+                    </mat-form-field>
+                  </div>
+                }
+                <mat-form-field>
+                  <mat-label>Descripción problema</mat-label>
+                  <textarea
+                    [formField]="formCreate.problemDescription"
+                    placeholder="Describe en detalle qué está sucediendo"
+                    matInput
+                  ></textarea>
+                  <mat-hint align="start"
+                    >{{ formCreateModel().problemDescription.length }}/1000</mat-hint
+                  >
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Horario de preferencia</mat-label>
+                  <input
+                    [formField]="formCreate.preferredSupportDate"
+                    matInput
+                    placeholder="Ej: Entre las 2 y 3 pm  hoy"
+                  />
+                </mat-form-field>
+              </div>
+            } @else if (
+              codeRequest === 'TICKET_RELEASE_LT30' ||
+              codeRequest === 'TICKET_UNLOCK_GT30' ||
+              codeRequest === 'CREDIT_NOTE_CREATE' ||
+              codeRequest === 'CREDIT_NOTE_REVERT'
+            ) {
+              <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <mat-form-field class="sm:col-span-2">
+                    <mat-label>Especialidad</mat-label>
+                    <input
+                      [formField]="formCreate.speciality"
+                      type="text"
+                      placeholder="Ej: Traumatología"
+                      matInput
+                      [matAutocomplete]="auto"
+                    />
+
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+                      @for (option of filteredSpecialtiesOption(); track option.value) {
+                        <mat-option [value]="option.label">
+                          {{ option.label }}
+                        </mat-option>
+                      }
+                    </mat-autocomplete>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>N° ticket</mat-label>
+                    <input
+                      [formField]="formCreate.ticketNumber"
+                      matInput
+                      placeholder="Ej: B452-112312"
+                    />
+                  </mat-form-field>
+                </div>
+                @if (codeRequest === 'CREDIT_NOTE_CREATE') {
+                  <mat-form-field>
+                    <mat-label>Motivo</mat-label>
+                    <input
+                      [formField]="formCreate.motive"
+                      matInput
+                      placeholder="Ej: Ingrese mal un dato"
+                      [matAutocomplete]="motive"
+                    />
+                    <mat-autocomplete autoActiveFirstOption #motive="matAutocomplete">
+                      @for (option of filteredMotivesOption(); track option) {
+                        <mat-option [value]="option.label">
+                          {{ option.label }}
+                        </mat-option>
+                      }
+                    </mat-autocomplete>
+                  </mat-form-field>
+                }
+              </div>
+            } @else if (codeRequest === 'USR_CREATE') {
+              <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <mat-form-field>
+                    <mat-label>Nombres</mat-label>
+                    <input
+                      [formField]="formCreate.firstNames"
+                      matInput
+                      placeholder="Ej: RAFHAEL ISAIAS"
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>Apellidos</mat-label>
+                    <input
+                      [formField]="formCreate.lastNames"
+                      matInput
+                      placeholder="Ej: ECHEVARRIA MAMANI"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <mat-form-field>
+                    <mat-label>Tipo documento</mat-label>
+                    <mat-select [formField]="formCreate.documentId">
+                      @for (item of documentTypes(); track item.id) {
+                        <mat-option [value]="item.id">{{ item.short_name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>N° documento</mat-label>
+                    <input [formField]="formCreate.documentNumber" matInput />
+                  </mat-form-field>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <mat-form-field>
+                    <mat-label>Cargo</mat-label>
+                    <input
+                      [formField]="formCreate.position"
+                      matInput
+                      placeholder="Ingeniero de Sistemas"
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>Tipo contrato</mat-label>
+                    <mat-select [formField]="formCreate.contractId">
+                      @for (item of contractTypes(); track item.id) {
+                        <mat-option [value]="item.id">{{ item.long_name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field>
+                  <mat-label>Rol</mat-label>
+                  <mat-select [formField]="formCreate.rolIds" multiple>
+                    @for (item of systemRoles(); track item.id) {
+                      <mat-option [value]="item.id">{{ item.short_name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            } @else {
+              <div class="text-center py-10 space-y-4">
+                <div class="text-7xl animate-spin inline-block">🥔</div>
+
+                <p class="text-lg font-semibold">La API se convirtió en papa.</p>
+
+                <p class="text-gray-500">Seguro olvidé pagar el servidor 😭</p>
+
+                <div class="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
+                  <div class="h-full bg-red-500 animate-[loading_2s_linear_infinite] w-1/3"></div>
+                </div>
+              </div>
+            }
+            <div class="flex gap-0 sm:gap-4 flex-col-reverse sm:flex-row">
+              <button
+                (click)="navegatePrevious()"
+                class="w-full mt-4"
+                type="button"
+                matButton="outlined"
+              >
+                Atras
+                <mat-icon
+                  class="hidden! sm:inline-block! scale-125"
+                  aria-hidden="false"
+                  fontIcon="arrow_back"
+                ></mat-icon>
+              </button>
+              <button
+                (click)="submit()"
+                [disabled]="formCreate().invalid()"
+                class="w-full mt-4"
+                type="button"
+                matButton="filled"
+              >
+                Crear Solicitud
+              </button>
+            </div>
+          </app-stepper-card>
+        </mat-step>
+      </mat-stepper>
+    </div>
+  </div>
+</section>

@@ -18,6 +18,7 @@ export class CurrentUserService {
       const payload = this.getDecodedToken();
       this.userService.getUserById(Number(payload?.sub)).subscribe((result) => {
         if (result.error) {
+          localStorage.clear();
           return;
         }
         this.user.set(result.data);
