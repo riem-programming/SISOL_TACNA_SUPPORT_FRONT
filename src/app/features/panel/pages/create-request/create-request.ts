@@ -1,5 +1,13 @@
-import { Component, computed, inject, signal, ViewChild } from '@angular/core';
-import { form, FormField, hidden, maxLength, minLength, required } from '@angular/forms/signals';
+import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  form,
+  FormField,
+  hidden,
+  maxLength,
+  minLength,
+  required,
+  submit,
+} from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -22,6 +30,9 @@ import { ContractTypeService } from '../../../../core/services/contract-type-ser
 import { SystemRoleService } from '../../../../core/services/system-role-service';
 import { RequestType } from '../../../../core/models/requestType.model';
 import { SupportMode } from '../../../../core/models/supportMode.model';
+import { StateTicketService } from '../../../../core/services/state-ticket-service';
+import { CurrentUserService } from '../../../../core/services/current-user-service';
+import { CreateRequestService } from './services/create-request-service';
 
 @Component({
   selector: 'app-create-request',
@@ -40,7 +51,7 @@ import { SupportMode } from '../../../../core/models/supportMode.model';
   templateUrl: './create-request.html',
   styleUrl: './create-request.css',
 })
-export default class CreateRequest {
+export default class CreateRequest implements OnInit {
   private readonly statesService = inject(StatesService);
   private _snackBar = inject(MatSnackBar);
   private requestTypeService = inject(RequestTypeService);
@@ -55,6 +66,7 @@ export default class CreateRequest {
   contractTypes = computed(() => this.contractTypeService.getAll());
   private systemRoleService = inject(SystemRoleService);
   systemRoles = computed(() => this.systemRoleService.getAll());
+  private createRequestService = inject(CreateRequestService);
 
   formCreateModel = signal<FormCreateRequest>({
     requestTypeId: null,
@@ -77,6 +89,7 @@ export default class CreateRequest {
     position: '',
     contractId: null,
     rolIds: null,
+    attachments: null,
   });
 
   formCreate = form(this.formCreateModel, (schemaPath) => {
@@ -127,6 +140,19 @@ export default class CreateRequest {
         : true;
     });
     required(schemaPath.ticketNumber, { message: 'El número ticket es obligatorio' });
+
+    hidden(schemaPath.attachments, ({ valueOf }) => {
+      const requestType = this.getRequestType(valueOf(schemaPath.requestTypeId));
+      if (requestType === null) return true;
+
+      return requestType.code === 'TICKET_RELEASE_LT30' ||
+        requestType.code === 'TICKET_UNLOCK_GT30' ||
+        requestType.code === 'CREDIT_NOTE_CREATE' ||
+        requestType.code === 'CREDIT_NOTE_REVERT'
+        ? false
+        : true;
+    });
+    required(schemaPath.attachments, { message: 'El documento es obligatorio' });
 
     hidden(schemaPath.problemDescription, ({ valueOf }) => {
       const requestType = this.getRequestType(valueOf(schemaPath.requestTypeId));
@@ -272,6 +298,21 @@ export default class CreateRequest {
     return searchMotives(value);
   });
 
+  isDragOver = signal(false);
+  readonly ACCEPTED_TYPES = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+  ];
+  readonly ACCEPTED_EXTENSIONS = '.pdf,.jpg,.jpeg,.png,.gif,.webp';
+  isMobile = signal(false);
+
+  ngOnInit() {
+    this.isMobile.set(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+  }
+
   updateState(key: string, index: number) {
     switch (key) {
       case 'requestType':
@@ -322,7 +363,43 @@ export default class CreateRequest {
   }
 
   submit() {
-    console.log('Resultado: ', this.formCreateModel());
+    submit(this.formCreate, async () => {
+      console.log('Resultado: ', this.formCreateModel());
+      const data = this.formCreateModel();
+      const codeRequest = this.currentRequestType()?.code ?? '';
+
+      if (
+        codeRequest === 'OTHER' ||
+        codeRequest === 'SYSTEM_ISSUE' ||
+        codeRequest === 'SIGNATURE_ISSUE'
+      ) {
+        this.createRequestService.createTechnicalSupportRequest(data).subscribe((result) => {
+          if (result.error) {
+            const error = result.error;
+            this.openSnackBar(error.message, 'Cerrar');
+            return;
+          }
+          const data = result.data;
+          console.log('Esto es data: ', data);
+        });
+      } else if (
+        codeRequest === 'TICKET_RELEASE_LT30' ||
+        codeRequest === 'TICKET_UNLOCK_GT30' ||
+        codeRequest === 'CREDIT_NOTE_CREATE' ||
+        codeRequest === 'CREDIT_NOTE_REVERT'
+      ) {
+        console.log('Esto es problemas de ticket');
+      } else if (codeRequest === 'USR_CREATE') {
+        console.log('Esto es un crear usuario');
+      } else {
+        console.log('Ocurrio un error');
+      }
+
+      this.resetStateForm();
+    });
+  }
+
+  private resetStateForm() {
     this.formCreate().reset({
       requestTypeId: null,
       supportModeId: null,
@@ -344,6 +421,7 @@ export default class CreateRequest {
       position: '',
       contractId: null,
       rolIds: null,
+      attachments: null,
     });
     this.stepper.reset();
     this.statesService.clearAll();
@@ -361,5 +439,62 @@ export default class CreateRequest {
     const supportMode = this.supportModeService.getById(id);
     if (!supportMode) return null;
     return supportMode;
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver.set(true);
+  }
+
+  onDragLeave(event: DragEvent) {
+    this.isDragOver.set(false);
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver.set(false);
+    const files = Array.from(event.dataTransfer?.files ?? []);
+    this.processFiles(files);
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    this.processFiles(files);
+    input.value = ''; // reset para permitir subir el mismo archivo
+  }
+
+  private processFiles(files: File[]) {
+    const valid = files.filter((f) => this.ACCEPTED_TYPES.includes(f.type));
+    const invalid = files.filter((f) => !this.ACCEPTED_TYPES.includes(f.type));
+
+    if (invalid.length) {
+      this.openSnackBar('Tipo de archivo no permitido. Solo PDF e imágenes.', 'OK');
+    }
+
+    if (valid.length > 0) {
+      this.formCreateModel.update((state) => ({ ...state, attachments: valid[0] }));
+    }
+  }
+
+  removeFile() {
+    this.formCreateModel.update((state) => ({ ...state, attachments: null }));
+  }
+
+  getFileIcon(file: File): string {
+    if (file.type === 'application/pdf') return 'picture_as_pdf';
+    if (file.type.startsWith('image/')) return 'image';
+    return 'insert_drive_file';
+  }
+
+  getFileIconColor(file: File): string {
+    if (file.type === 'application/pdf') return 'text-red-500';
+    return 'text-blue-500';
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1_048_576) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1_048_576).toFixed(1)} MB`;
   }
 }

@@ -20,4 +20,19 @@ export interface FormCreateRequest {
   position: string;
   contractId: number | null;
   rolIds: number[] | null;
+  attachments: File | null;
+}
+
+export interface CreateTechnicalSupportRequest {
+  state_id: number;
+  request_type_id: number | null;
+  priority_id: number | null;
+  user_id: number;
+  support_mode_id: number | null;
+  speciality: string | null;
+  office_number: string | null;
+  problem_description: string | null;
+  contact_phone: string | null;
+  anydesk_code: string | null;
+  preferred_support_date: string | null;
 }

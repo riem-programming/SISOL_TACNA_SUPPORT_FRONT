@@ -4,6 +4,7 @@
       <h2 class="text-2xl sm:text-3xl font-bold">Crear Nueva Solicitud</h2>
       <p class="text-sm sm:text-base">Sigue los pasos para crear una solicitud de soporte</p>
     </div>
+
     <div class="mb-8 space-y-2">
       <mat-stepper linear #stepper>
         <mat-step [completed]="formCreate.requestTypeId().valid()">
@@ -299,6 +300,183 @@
                     </mat-autocomplete>
                   </mat-form-field>
                 }
+
+                <p class="text-xs m-0 mb-2" [style.color]="'var(--mat-sys-outline)'">
+                  Sube una foto o escaneo del ticket físico para respaldar tu solicitud.
+                </p>
+
+                <div class="flex flex-col gap-2">
+                  <!-- Drop zone — oculta si ya hay archivo -->
+                  @if (formCreate.attachments().invalid()) {
+                    <div
+                      class="flex flex-col items-center gap-2 p-8 border-2 border-dashed rounded-xl cursor-pointer text-center transition-colors"
+                      [style.border-color]="
+                        isDragOver() ? 'var(--mat-sys-primary)' : 'var(--mat-sys-outline)'
+                      "
+                      [style.background-color]="
+                        isDragOver()
+                          ? 'color-mix(in srgb, var(--mat-sys-primary) 8%, transparent)'
+                          : 'transparent'
+                      "
+                      (dragover)="onDragOver($event)"
+                      (dragleave)="onDragLeave($event)"
+                      (drop)="onDrop($event)"
+                      (click)="fileInput.click()"
+                    >
+                      <div
+                        class="w-12 h-12 rounded-lg flex items-center justify-center"
+                        [style.background-color]="'var(--mat-sys-surface-variant)'"
+                      >
+                        <mat-icon [style.color]="'var(--mat-sys-on-surface-variant)'"
+                          >cloud_upload</mat-icon
+                        >
+                      </div>
+
+                      <p
+                        class="text-sm font-medium m-0"
+                        [style.color]="'var(--mat-sys-on-surface)'"
+                      >
+                        Arrastra tu archivo aquí
+                      </p>
+                      <p class="text-sm m-0" [style.color]="'var(--mat-sys-on-surface-variant)'">
+                        o
+                        <span class="font-medium" [style.color]="'var(--mat-sys-primary)'"
+                          >haz clic para seleccionar</span
+                        >
+                      </p>
+                      <p class="text-xs m-0" [style.color]="'var(--mat-sys-outline)'">
+                        PDF, JPG, PNG, GIF, WEBP · Máximo 1 archivo
+                      </p>
+
+                      <input
+                        #fileInput
+                        type="file"
+                        [accept]="ACCEPTED_EXTENSIONS"
+                        class="hidden"
+                        (change)="onFileSelected($event)"
+                      />
+                    </div>
+                  }
+
+                  <!-- Botón cámara — solo móvil y sin archivo -->
+                  @if (isMobile() && formCreate.attachments().invalid()) {
+                    <button
+                      type="button"
+                      mat-stroked-button
+                      class="w-full gap-1"
+                      (click)="cameraInput.click()"
+                    >
+                      <mat-icon>photo_camera</mat-icon>
+                      Tomar foto
+                    </button>
+
+                    <input
+                      #cameraInput
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      class="hidden"
+                      (change)="onFileSelected($event)"
+                    />
+                  }
+
+                  <!-- Archivo adjunto -->
+                  @let file = formCreate.attachments().value();
+                  @if (file) {
+                    <div
+                      class="flex flex-col gap-2 px-3 py-2.5 rounded-lg border"
+                      [style.border-color]="'var(--mat-sys-outline-variant)'"
+                      [style.background-color]="'var(--mat-sys-surface-container)'"
+                    >
+                      <!-- Fila 1: ícono + info -->
+                      <div class="flex items-center gap-3 min-w-0">
+                        <!-- Ícono -->
+                        <div
+                          class="w-9 h-9 shrink-0 rounded-md flex items-center justify-center"
+                          [style.background-color]="
+                            file.type === 'application/pdf'
+                              ? 'color-mix(in srgb, var(--mat-sys-error) 12%, transparent)'
+                              : 'color-mix(in srgb, var(--mat-sys-primary) 12%, transparent)'
+                          "
+                        >
+                          <mat-icon
+                            class="text-lg!"
+                            [style.color]="
+                              file.type === 'application/pdf'
+                                ? 'var(--mat-sys-error)'
+                                : 'var(--mat-sys-primary)'
+                            "
+                          >
+                            {{ getFileIcon(file) }}
+                          </mat-icon>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="flex-1 min-w-0">
+                          <p
+                            class="text-sm font-medium truncate m-0"
+                            [style.color]="'var(--mat-sys-on-surface)'"
+                          >
+                            {{ file.name }}
+                          </p>
+                          <p
+                            class="text-xs m-0"
+                            [style.color]="'var(--mat-sys-on-surface-variant)'"
+                          >
+                            {{ formatFileSize(file.size) }}
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Fila 2: acciones — se alinean a la derecha -->
+                      <div
+                        class="flex items-center justify-end gap-1 border-t pt-1"
+                        [style.border-color]="'var(--mat-sys-outline-variant)'"
+                      >
+                        <button
+                          type="button"
+                          mat-button
+                          class="text-xs! gap-1"
+                          (click)="fileInput.click()"
+                          aria-label="Reemplazar archivo"
+                        >
+                          <mat-icon
+                            class="hidden! sm:inline-block! text-base!"
+                            [style.color]="'var(--mat-sys-on-surface-variant)'"
+                          >
+                            swap_horiz
+                          </mat-icon>
+                          <span [style.color]="'var(--mat-sys-on-surface-variant)'"
+                            >Reemplazar</span
+                          >
+                        </button>
+
+                        <button
+                          type="button"
+                          mat-button
+                          class="text-xs! gap-1"
+                          (click)="removeFile()"
+                          aria-label="Eliminar archivo"
+                        >
+                          <mat-icon
+                            class="hidden! sm:inline-block! text-base!"
+                            [style.color]="'var(--mat-sys-error)'"
+                            >close</mat-icon
+                          >
+                          <span [style.color]="'var(--mat-sys-error)'">Eliminar</span>
+                        </button>
+
+                        <input
+                          #fileInput
+                          type="file"
+                          [accept]="ACCEPTED_EXTENSIONS"
+                          class="hidden"
+                          (change)="onFileSelected($event)"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
               </div>
             } @else if (codeRequest === 'USR_CREATE') {
               <div class="grid grid-cols-1 gap-3 sm:gap-4">
