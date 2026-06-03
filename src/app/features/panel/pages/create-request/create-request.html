@@ -162,6 +162,13 @@
 
         <mat-step>
           <app-stepper-card>
+            @if (isLoading()) {
+              <mat-progress-bar mode="indeterminate" class="absolute top-0 left-0 right-0 z-50" />
+              <div
+                class="absolute inset-0 z-40 bg-black/20 backdrop-blur-[0.5px] cursor-not-allowed rounded-inherit"
+              ></div>
+            }
+
             <div class="space-y-2">
               <h3 class="text-lg font-semibold">Detalle de la Solicitud</h3>
               <p class="hidden sm:block text-sm">
@@ -558,6 +565,45 @@
                 </div>
               </div>
             }
+
+            <!-- ¿CONTINUAR CREANDO SOLICITUDES? -->
+
+            <div
+              class="flex items-start gap-3 px-3 py-3 rounded-lg border mt-2"
+              [style.border-color]="'var(--mat-sys-outline-variant)'"
+              [style.background-color]="'var(--mat-sys-surface-container)'"
+            >
+              <mat-checkbox color="primary" [formField]="formCreate.keepCreating">
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-medium" [style.color]="'var(--mat-sys-on-surface)'">
+                    @if (codeRequest === 'TICKET_RELEASE_LT30') {
+                      Crear otra liberación después
+                    } @else if (codeRequest === 'TICKET_UNLOCK_GT30') {
+                      Crear otro desbloqueo después
+                    } @else if (codeRequest === 'CREDIT_NOTE_CREATE') {
+                      Crear otra nota de crédito después
+                    } @else if (codeRequest === 'CREDIT_NOTE_REVERT') {
+                      Crear otra reversión de nota de crédito después
+                    } @else if (codeRequest === 'USR_CREATE') {
+                      Crear otra usuario después
+                    } @else {
+                      Crear otra solicitud
+                    }
+                  </span>
+                  @if (
+                    codeRequest !== 'TICKET_RELEASE_LT30' &&
+                    codeRequest !== 'TICKET_UNLOCK_GT30' &&
+                    codeRequest !== 'CREDIT_NOTE_CREATE' &&
+                    codeRequest !== 'USR_CREATE'
+                  ) {
+                    <span class="text-xs" [style.color]="'var(--mat-sys-on-surface-variant)'">
+                      Al enviar, el formulario se reiniciará para una nueva solicitud
+                    </span>
+                  }
+                </div>
+              </mat-checkbox>
+            </div>
+
             <div class="flex gap-0 sm:gap-4 flex-col-reverse sm:flex-row">
               <button
                 (click)="navegatePrevious()"

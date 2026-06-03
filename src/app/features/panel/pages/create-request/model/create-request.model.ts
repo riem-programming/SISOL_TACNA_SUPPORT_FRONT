@@ -21,6 +21,7 @@ export interface FormCreateRequest {
   contractId: number | null;
   rolIds: number[] | null;
   attachments: File | null;
+  keepCreating: boolean;
 }
 
 export interface CreateTechnicalSupportRequest {
@@ -35,4 +36,29 @@ export interface CreateTechnicalSupportRequest {
   contact_phone: string | null;
   anydesk_code: string | null;
   preferred_support_date: string | null;
+}
+
+export interface CreateVoucherRequest {
+  state_id: number;
+  request_type_id: number | null;
+  priority_id: number | null;
+  user_id: number;
+  voucher_action_type_id: number;
+  voucher_code: string;
+  speciality: string;
+  motive: string | null;
+}
+
+export interface CreateCreateUserRequest {
+  state_id: number;
+  request_type_id: number | null;
+  priority_id: number | null;
+  user_id: number;
+  first_names: string;
+  last_names: string;
+  document_type_id: number | null;
+  document_number: string;
+  position: string;
+  contract_type_id: number | null;
+  system_role_ids: number[] | null;
 }

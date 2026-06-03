@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import {
   form,
   FormField,
@@ -30,9 +30,11 @@ import { ContractTypeService } from '../../../../core/services/contract-type-ser
 import { SystemRoleService } from '../../../../core/services/system-role-service';
 import { RequestType } from '../../../../core/models/requestType.model';
 import { SupportMode } from '../../../../core/models/supportMode.model';
-import { StateTicketService } from '../../../../core/services/state-ticket-service';
-import { CurrentUserService } from '../../../../core/services/current-user-service';
 import { CreateRequestService } from './services/create-request-service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-request',
@@ -47,11 +49,14 @@ import { CreateRequestService } from './services/create-request-service';
     MatDividerModule,
     MatAutocompleteModule,
     MatSelectModule,
+    MatProgressSpinnerModule,
+    MatProgressBarModule,
+    MatCheckboxModule,
   ],
   templateUrl: './create-request.html',
   styleUrl: './create-request.css',
 })
-export default class CreateRequest implements OnInit {
+export default class CreateRequest implements OnInit, OnDestroy {
   private readonly statesService = inject(StatesService);
   private _snackBar = inject(MatSnackBar);
   private requestTypeService = inject(RequestTypeService);
@@ -67,8 +72,11 @@ export default class CreateRequest implements OnInit {
   private systemRoleService = inject(SystemRoleService);
   systemRoles = computed(() => this.systemRoleService.getAll());
   private createRequestService = inject(CreateRequestService);
+  private router = inject(Router);
 
-  formCreateModel = signal<FormCreateRequest>({
+  isLoading = computed(() => this.createRequestService.loading());
+
+  private readonly defaultFormValues: FormCreateRequest = {
     requestTypeId: null,
     supportModeId: null,
     priorityId: null,
@@ -78,10 +86,8 @@ export default class CreateRequest implements OnInit {
     contactPhone: '',
     anydeskCode: '',
     preferredSupportDate: '',
-    //
     motive: '',
     ticketNumber: '',
-    //
     firstNames: '',
     lastNames: '',
     documentId: null,
@@ -90,7 +96,10 @@ export default class CreateRequest implements OnInit {
     contractId: null,
     rolIds: null,
     attachments: null,
-  });
+    keepCreating: false,
+  };
+
+  formCreateModel = signal<FormCreateRequest>(this.defaultFormValues);
 
   formCreate = form(this.formCreateModel, (schemaPath) => {
     required(schemaPath.requestTypeId, { message: 'El tipo de solicitud es obligatorio' });
@@ -364,7 +373,6 @@ export default class CreateRequest implements OnInit {
 
   submit() {
     submit(this.formCreate, async () => {
-      console.log('Resultado: ', this.formCreateModel());
       const data = this.formCreateModel();
       const codeRequest = this.currentRequestType()?.code ?? '';
 
@@ -379,8 +387,13 @@ export default class CreateRequest implements OnInit {
             this.openSnackBar(error.message, 'Cerrar');
             return;
           }
-          const data = result.data;
-          console.log('Esto es data: ', data);
+          const response = result.data;
+          this.openSnackBar(`¡Solicitud creada exitosamente!`, 'OK');
+          if (data.keepCreating) {
+            this.resetAllStateForm();
+            return;
+          }
+          this.router.navigate(['panel', 'mis-solicitudes']);
         });
       } else if (
         codeRequest === 'TICKET_RELEASE_LT30' ||
@@ -388,43 +401,67 @@ export default class CreateRequest implements OnInit {
         codeRequest === 'CREDIT_NOTE_CREATE' ||
         codeRequest === 'CREDIT_NOTE_REVERT'
       ) {
-        console.log('Esto es problemas de ticket');
-      } else if (codeRequest === 'USR_CREATE') {
-        console.log('Esto es un crear usuario');
-      } else {
-        console.log('Ocurrio un error');
-      }
+        this.createRequestService.createVoucherRequest(data).subscribe((result) => {
+          if (result.error) {
+            const error = result.error;
+            this.openSnackBar(error.message, 'Cerrar');
+            return;
+          }
 
-      this.resetStateForm();
+          const response = result.data;
+          this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
+          if (data.keepCreating) {
+            this.resetSpecificStateForm(['ticketNumber', 'attachments']);
+            return;
+          }
+          this.router.navigate(['panel', 'mis-solicitudes']);
+        });
+      } else if (codeRequest === 'USR_CREATE') {
+        this.createRequestService.createCreateUserRequest(data).subscribe((result) => {
+          if (result.error) {
+            const error = result.error;
+            this.openSnackBar(error.message, 'Cerrar');
+            return;
+          }
+
+          const response = result.data;
+          this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
+          if (data.keepCreating) {
+            this.resetSpecificStateForm([
+              'firstNames',
+              'lastNames',
+              'documentId',
+              'documentNumber',
+              'position',
+              'contractId',
+              'rolIds',
+            ]);
+            return;
+          }
+          this.router.navigate(['panel', 'mis-solicitudes']);
+        });
+      } else {
+        this.openSnackBar('Ocurrio un error', 'Cerrar');
+      }
     });
   }
 
-  private resetStateForm() {
-    this.formCreate().reset({
-      requestTypeId: null,
-      supportModeId: null,
-      priorityId: null,
-      problemDescription: '',
-      officeNumber: '',
-      speciality: '',
-      contactPhone: '',
-      anydeskCode: '',
-      preferredSupportDate: '',
-      //
-      motive: '',
-      ticketNumber: '',
-      //
-      firstNames: '',
-      lastNames: '',
-      documentId: null,
-      documentNumber: '',
-      position: '',
-      contractId: null,
-      rolIds: null,
-      attachments: null,
-    });
+  private resetAllStateForm() {
+    this.formCreate().reset(this.defaultFormValues);
     this.stepper.reset();
     this.statesService.clearAll();
+  }
+
+  private resetSpecificStateForm(keysToReset: (keyof FormCreateRequest)[]) {
+    const currentValues: FormCreateRequest = {
+      ...this.formCreateModel(),
+    };
+
+    keysToReset.forEach((key) => {
+      (currentValues as any)[key] = this.defaultFormValues[key];
+    });
+
+    this.formCreate().reset(currentValues);
   }
 
   private getRequestType(id: number | null): null | RequestType {
@@ -496,5 +533,9 @@ export default class CreateRequest implements OnInit {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1_048_576) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / 1_048_576).toFixed(1)} MB`;
+  }
+
+  ngOnDestroy(): void {
+    this.resetAllStateForm();
   }
 }
