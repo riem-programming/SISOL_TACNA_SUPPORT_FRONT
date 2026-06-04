@@ -68,11 +68,8 @@ export class CreateRequestService {
     this.loading.set(true);
 
     const stateOpen = this.stateTicketService.getAll().find((s) => s.code === 'open')?.id ?? 0;
-
     const currentUserId = this.currentUserService.user()?.id ?? 0;
-
     const currentRequestTypeCode = this.requestTypeService.getById(data.requestTypeId ?? 0)?.code;
-
     const voucherActionTypeId =
       this.voucherActionTypeService
         .getAll()
@@ -81,21 +78,49 @@ export class CreateRequestService {
 
     const body = createVoucherRequestAdapter(data, currentUserId, stateOpen, voucherActionTypeId);
 
-    return this.http.post<VoucherRequest>(`${this.baseUrl}/voucher-request`, body).pipe(
+    // ✅ Construir FormData aquí antes de enviar
+    const formData = new FormData();
+    formData.append('state_id', String(body.state_id));
+    formData.append('user_id', String(body.user_id));
+    formData.append('voucher_action_type_id', String(body.voucher_action_type_id));
+    formData.append('voucher_code', body.voucher_code);
+    formData.append('speciality', body.speciality ?? '');
+
+    if (body.request_type_id !== null)
+      formData.append('request_type_id', String(body.request_type_id));
+
+    if (body.priority_id !== null) formData.append('priority_id', String(body.priority_id));
+
+    if (body.motive !== null && body.motive !== undefined) formData.append('motive', body.motive);
+
+    if (body.attachment instanceof File)
+      formData.append('attachment', body.attachment, body.attachment.name);
+
+    return this.http.post<VoucherRequest>(`${this.baseUrl}/voucher-request`, formData).pipe(
       takeUntil(this.onDestroy),
       first(),
-      map((response: VoucherRequest) => ({
-        data: response,
-        error: null,
-      })),
+      map((response: VoucherRequest) => ({ data: response, error: null })),
       catchError((error: HttpErrorResponse) =>
-        of({
-          data: null,
-          error: error.error as ErrorResponse,
-        }),
+        of({ data: null, error: error.error as ErrorResponse }),
       ),
       finalize(() => this.loading.set(false)),
     );
+  }
+
+  getAttachment(voucherId: number): Observable<ApiResult<{ url: string }, ErrorResponse>> {
+    this.onDestroy.next();
+    this.loading.set(true);
+    return this.http
+      .get<{ url: string }>(`${this.baseUrl}/voucher-request/${voucherId}/attachment`)
+      .pipe(
+        takeUntil(this.onDestroy),
+        first(),
+        map((r) => ({ data: r, error: null })),
+        catchError((error: HttpErrorResponse) =>
+          of({ data: null, error: error.error as ErrorResponse }),
+        ),
+        finalize(() => this.loading.set(false)),
+      );
   }
 
   createCreateUserRequest(

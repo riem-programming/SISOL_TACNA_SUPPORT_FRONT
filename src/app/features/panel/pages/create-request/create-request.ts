@@ -407,9 +407,9 @@ export default class CreateRequest implements OnInit, OnDestroy {
             this.openSnackBar(error.message, 'Cerrar');
             return;
           }
-
           const response = result.data;
           this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
+
           if (data.keepCreating) {
             this.resetSpecificStateForm(['ticketNumber', 'attachments']);
             return;

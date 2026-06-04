@@ -47,6 +47,7 @@ export interface CreateVoucherRequest {
   voucher_code: string;
   speciality: string;
   motive: string | null;
+  attachment: File | null;
 }
 
 export interface CreateCreateUserRequest {

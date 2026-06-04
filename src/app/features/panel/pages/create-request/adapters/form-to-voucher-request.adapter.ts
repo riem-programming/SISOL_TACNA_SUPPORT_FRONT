@@ -16,5 +16,6 @@ export function createVoucherRequestAdapter(
     voucher_code: form.ticketNumber,
     speciality: form.speciality,
     motive: emptyToNull(form.motive),
+    attachment: form.attachments,
   };
 }
