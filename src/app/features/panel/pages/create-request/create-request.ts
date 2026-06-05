@@ -35,6 +35,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
+import { VoiceInput } from '../../../../core/directives/voice-input-directive';
 
 @Component({
   selector: 'app-create-request',
@@ -52,6 +53,7 @@ import { Router } from '@angular/router';
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatCheckboxModule,
+    VoiceInput,
   ],
   templateUrl: './create-request.html',
   styleUrl: './create-request.css',

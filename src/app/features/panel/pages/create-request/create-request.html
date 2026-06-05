@@ -256,10 +256,39 @@
                     placeholder="Describe en detalle qué está sucediendo"
                     matInput
                     rows="4"
+                    appVoiceInput
+                    #voice="appVoiceInput"
                   ></textarea>
-                  <mat-hint align="start"
-                    >{{ formCreateModel().problemDescription.length }}/1000</mat-hint
-                  >
+                  @if (voice.supported) {
+                    <button
+                      matSuffix
+                      type="button"
+                      class="mic-button"
+                      [class.mic-recording]="voice.listening()"
+                      (click)="voice.toggle()"
+                      [attr.aria-label]="
+                        voice.listening() ? 'Detener dictado por voz' : 'Dictar por voz'
+                      "
+                      [attr.aria-pressed]="voice.listening() ? 'true' : 'false'"
+                    >
+                      <mat-icon aria-hidden="true">{{
+                        voice.listening() ? 'mic' : 'mic_none'
+                      }}</mat-icon>
+                    </button>
+                  }
+                  @if (voice.listening()) {
+                    <mat-hint align="start" class="listening-hint">
+                      Escuchando… {{ formCreateModel().problemDescription.length }}/1000
+                    </mat-hint>
+                  } @else if (voice.permissionDenied()) {
+                    <mat-hint align="start" class="listening-hint">
+                      Activa el permiso del micrófono en tu navegador
+                    </mat-hint>
+                  } @else {
+                    <mat-hint align="start"
+                      >{{ formCreateModel().problemDescription.length }}/1000</mat-hint
+                    >
+                  }
                 </mat-form-field>
                 <mat-form-field>
                   <mat-label>Horario de preferencia</mat-label>

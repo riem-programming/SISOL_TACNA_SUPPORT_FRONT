@@ -7,3 +7,42 @@
 :host ::ng-deep .mat-horizontal-content-container {
   padding: 0;
 }
+
+/* Voice dictation mic button (48px touch target, matSuffix) */
+.mic-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--mat-sys-on-surface-variant);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.mic-button:hover {
+  background: var(--mat-sys-surface-container-high);
+}
+
+.mic-recording {
+  color: var(--mat-sys-error);
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%,
+  100% {
+    background: transparent;
+  }
+  50% {
+    background: color-mix(in srgb, var(--mat-sys-error) 12%, transparent);
+  }
+}
+
+.listening-hint {
+  color: var(--mat-sys-error);
+  font-weight: 600;
+}
