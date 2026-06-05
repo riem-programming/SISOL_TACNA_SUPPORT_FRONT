@@ -1,0 +1,66 @@
+:host {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  display: block;
+}
+
+/* Bottom nav is mobile-only; desktop uses the header nav */
+@media (min-width: 768px) {
+  :host {
+    display: none;
+  }
+}
+
+nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--mat-sys-surface-container);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+}
+
+a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 56px;
+  text-decoration: none;
+  color: var(--mat-sys-on-surface-variant);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  transition: background-color 0.2s;
+}
+
+.nav-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+a.active {
+  color: var(--mat-sys-on-surface);
+}
+
+a.active .nav-label {
+  font-weight: 700;
+}
+
+a.active .nav-icon {
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+a.active .nav-icon mat-icon {
+  font-variation-settings: 'FILL' 1;
+}

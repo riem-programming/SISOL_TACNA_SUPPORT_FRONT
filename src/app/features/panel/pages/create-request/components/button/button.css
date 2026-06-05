@@ -1,0 +1,35 @@
+.option-card {
+  width: 100%;
+  display: flex;
+  min-height: 56px; /* WCAG touch target */
+  padding: 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font-family: inherit;
+  font-size: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.option-card:hover:not(.option-card-active) {
+  border-color: var(--mat-sys-primary);
+  background: color-mix(in srgb, var(--mat-sys-primary) 4%, var(--mat-sys-surface));
+}
+
+.option-card-active {
+  border-color: var(--mat-sys-primary);
+  background: color-mix(in srgb, var(--mat-sys-primary) 10%, var(--mat-sys-surface));
+  box-shadow: 0 0 0 1px var(--mat-sys-primary);
+}
+
+.option-description {
+  margin-top: 2px;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+}

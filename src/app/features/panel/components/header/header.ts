@@ -3,11 +3,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CurrentUserService } from '../../../../core/services/current-user-service';
 import { isPlatformServer } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrls: ['./header.css', './header.material.scss'],
 })
@@ -24,9 +24,5 @@ export class Header {
     this.currentUser.set(null);
     localStorage.clear();
     this.router.navigate(['']);
-  }
-
-  goToHome() {
-    this.router.navigate(['panel']);
   }
 }

@@ -1,17 +1,33 @@
 <section class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
   <div class="max-w-2xl mx-auto">
-    <div class="hidden sm:block mb-8 space-y-2">
-      <h2 class="text-2xl sm:text-3xl font-bold">Crear Nueva Solicitud</h2>
-      <p class="text-sm sm:text-base">Sigue los pasos para crear una solicitud de soporte</p>
+    <div class="mb-6 space-y-1 sm:mb-8">
+      <h1 class="text-2xl font-bold sm:text-3xl">Crear Nueva Solicitud</h1>
+      <p class="text-base text-muted-foreground sm:text-lg">
+        Sigue los pasos para crear una solicitud de soporte
+      </p>
     </div>
 
-    <div class="mb-8 space-y-2">
+    <div class="mb-8">
+      <div class="flex flex-col gap-2">
+        <span class="text-sm font-bold text-primary">
+          Paso {{ stepper.selectedIndex + 1 }} de {{ totalSteps() }}
+        </span>
+        <div class="flex gap-1.5" aria-hidden="true">
+          @for (segment of stepSegments(); track $index) {
+            <span
+              class="h-2 flex-1 rounded-full transition-colors duration-300"
+              [class.bg-primary]="$index <= stepper.selectedIndex"
+              [class.bg-surface-container-high]="$index > stepper.selectedIndex"
+            ></span>
+          }
+        </div>
+      </div>
       <mat-stepper linear #stepper>
         <mat-step [completed]="formCreate.requestTypeId().valid()">
           <app-stepper-card>
             <div class="space-y-2">
-              <h3 class="text-lg font-semibold">Tipo de Solicitud</h3>
-              <p class="hidden sm:block text-sm">
+              <h3 class="text-xl font-bold">Tipo de Solicitud</h3>
+              <p class="text-base text-muted-foreground">
                 Selecciona el tipo de problema o solicitud que tienes
               </p>
             </div>
@@ -37,8 +53,8 @@
               Siguiente
               <mat-icon
                 iconPositionEnd
-                class="hidden! sm:inline-block! scale-125"
-                aria-hidden="false"
+                class="step-nav-icon"
+                aria-hidden="true"
                 fontIcon="arrow_forward"
               ></mat-icon>
             </button>
@@ -56,8 +72,8 @@
           <mat-step [completed]="formCreate.supportModeId().valid()">
             <app-stepper-card>
               <div class="space-y-2">
-                <h3 class="text-lg font-semibold">Modalidad de Soporte</h3>
-                <p class="hidden sm:block text-sm">¿Prefieres soporte virtual o presencial?</p>
+                <h3 class="text-xl font-bold">Modalidad de Soporte</h3>
+                <p class="text-base text-muted-foreground">¿Prefieres soporte virtual o presencial?</p>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 @for (item of supportModes(); track item.id) {
@@ -79,10 +95,10 @@
                   type="button"
                   matButton="outlined"
                 >
-                  Atras
+                  Atrás
                   <mat-icon
-                    class="hidden! sm:inline-block! scale-125"
-                    aria-hidden="false"
+                    class="step-nav-icon"
+                    aria-hidden="true"
                     fontIcon="arrow_back"
                   ></mat-icon>
                 </button>
@@ -96,8 +112,8 @@
                   Siguiente
                   <mat-icon
                     iconPositionEnd
-                    class="hidden! sm:inline-block! scale-125"
-                    aria-hidden="false"
+                    class="step-nav-icon"
+                    aria-hidden="true"
                     fontIcon="arrow_forward"
                   ></mat-icon>
                 </button>
@@ -109,8 +125,8 @@
         <mat-step [completed]="formCreate.priorityId().valid()">
           <app-stepper-card>
             <div class="space-y-2">
-              <h3 class="text-lg font-semibold">Nivel de Prioridad</h3>
-              <p class="hidden sm:block text-sm">¿Cuál es la urgencia de tu solicitud?</p>
+              <h3 class="text-xl font-bold">Nivel de Prioridad</h3>
+              <p class="text-base text-muted-foreground">¿Cuál es la urgencia de tu solicitud?</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -134,10 +150,10 @@
                 type="button"
                 matButton="outlined"
               >
-                Atras
+                Atrás
                 <mat-icon
-                  class="hidden! sm:inline-block! scale-125"
-                  aria-hidden="false"
+                  class="step-nav-icon"
+                  aria-hidden="true"
                   fontIcon="arrow_back"
                 ></mat-icon>
               </button>
@@ -151,8 +167,8 @@
                 Siguiente
                 <mat-icon
                   iconPositionEnd
-                  class="hidden! sm:inline-block! scale-125"
-                  aria-hidden="false"
+                  class="step-nav-icon"
+                  aria-hidden="true"
                   fontIcon="arrow_forward"
                 ></mat-icon>
               </button>
@@ -165,13 +181,13 @@
             @if (isLoading()) {
               <mat-progress-bar mode="indeterminate" class="absolute top-0 left-0 right-0 z-50" />
               <div
-                class="absolute inset-0 z-40 bg-black/20 backdrop-blur-[0.5px] cursor-not-allowed rounded-inherit"
+                class="absolute inset-0 z-40 cursor-not-allowed bg-on-surface/20 backdrop-blur-[0.5px]"
               ></div>
             }
 
             <div class="space-y-2">
-              <h3 class="text-lg font-semibold">Detalle de la Solicitud</h3>
-              <p class="hidden sm:block text-sm">
+              <h3 class="text-xl font-bold">Detalle de la Solicitud</h3>
+              <p class="text-base text-muted-foreground">
                 Tipo <strong>{{ currentRequestType()?.short_name }}</strong>
               </p>
             </div>
@@ -239,6 +255,7 @@
                     [formField]="formCreate.problemDescription"
                     placeholder="Describe en detalle qué está sucediendo"
                     matInput
+                    rows="4"
                   ></textarea>
                   <mat-hint align="start"
                     >{{ formCreateModel().problemDescription.length }}/1000</mat-hint
@@ -308,7 +325,7 @@
                   </mat-form-field>
                 }
 
-                <p class="text-xs m-0 mb-2" [style.color]="'var(--mat-sys-outline)'">
+                <p class="m-0 mb-2 text-sm text-muted-foreground">
                   Sube una foto o escaneo del ticket físico para respaldar tu solicitud.
                 </p>
 
@@ -332,7 +349,7 @@
                     >
                       <div
                         class="w-12 h-12 rounded-lg flex items-center justify-center"
-                        [style.background-color]="'var(--mat-sys-surface-variant)'"
+                        [style.background-color]="'var(--mat-sys-surface-container-high)'"
                       >
                         <mat-icon [style.color]="'var(--mat-sys-on-surface-variant)'"
                           >cloud_upload</mat-icon
@@ -351,7 +368,7 @@
                           >haz clic para seleccionar</span
                         >
                       </p>
-                      <p class="text-xs m-0" [style.color]="'var(--mat-sys-outline)'">
+                      <p class="m-0 text-sm text-muted-foreground">
                         PDF, JPG, PNG, GIF, WEBP · Máximo 1 archivo
                       </p>
 
@@ -369,7 +386,7 @@
                   @if (isMobile() && formCreate.attachments().invalid()) {
                     <button
                       type="button"
-                      mat-stroked-button
+                      matButton="outlined"
                       class="w-full gap-1"
                       (click)="cameraInput.click()"
                     >
@@ -442,13 +459,13 @@
                       >
                         <button
                           type="button"
-                          mat-button
-                          class="text-xs! gap-1"
+                          matButton
+                          class="gap-1"
                           (click)="fileInput.click()"
                           aria-label="Reemplazar archivo"
                         >
                           <mat-icon
-                            class="hidden! sm:inline-block! text-base!"
+                            class="text-base!"
                             [style.color]="'var(--mat-sys-on-surface-variant)'"
                           >
                             swap_horiz
@@ -460,13 +477,13 @@
 
                         <button
                           type="button"
-                          mat-button
-                          class="text-xs! gap-1"
+                          matButton
+                          class="gap-1"
                           (click)="removeFile()"
                           aria-label="Eliminar archivo"
                         >
                           <mat-icon
-                            class="hidden! sm:inline-block! text-base!"
+                            class="text-base!"
                             [style.color]="'var(--mat-sys-error)'"
                             >close</mat-icon
                           >
@@ -558,10 +575,10 @@
 
                 <p class="text-lg font-semibold">La API se convirtió en papa.</p>
 
-                <p class="text-gray-500">Seguro olvidé pagar el servidor 😭</p>
+                <p class="text-muted-foreground">Seguro olvidé pagar el servidor 😭</p>
 
-                <div class="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
-                  <div class="h-full bg-red-500 animate-[loading_2s_linear_infinite] w-1/3"></div>
+                <div class="mx-auto h-2 w-64 overflow-hidden rounded-full bg-surface-container-high">
+                  <div class="h-full w-1/3 animate-[loading_2s_linear_infinite] bg-error"></div>
                 </div>
               </div>
             }
@@ -573,9 +590,9 @@
               [style.border-color]="'var(--mat-sys-outline-variant)'"
               [style.background-color]="'var(--mat-sys-surface-container)'"
             >
-              <mat-checkbox color="primary" [formField]="formCreate.keepCreating">
+              <mat-checkbox [formField]="formCreate.keepCreating">
                 <div class="flex flex-col gap-0.5">
-                  <span class="text-sm font-medium" [style.color]="'var(--mat-sys-on-surface)'">
+                  <span class="text-base font-medium" [style.color]="'var(--mat-sys-on-surface)'">
                     @if (codeRequest === 'TICKET_RELEASE_LT30') {
                       Crear otra liberación después
                     } @else if (codeRequest === 'TICKET_UNLOCK_GT30') {
@@ -585,7 +602,7 @@
                     } @else if (codeRequest === 'CREDIT_NOTE_REVERT') {
                       Crear otra reversión de nota de crédito después
                     } @else if (codeRequest === 'USR_CREATE') {
-                      Crear otra usuario después
+                      Crear otro usuario después
                     } @else {
                       Crear otra solicitud
                     }
@@ -594,9 +611,10 @@
                     codeRequest !== 'TICKET_RELEASE_LT30' &&
                     codeRequest !== 'TICKET_UNLOCK_GT30' &&
                     codeRequest !== 'CREDIT_NOTE_CREATE' &&
+                    codeRequest !== 'CREDIT_NOTE_REVERT' &&
                     codeRequest !== 'USR_CREATE'
                   ) {
-                    <span class="text-xs" [style.color]="'var(--mat-sys-on-surface-variant)'">
+                    <span class="text-sm" [style.color]="'var(--mat-sys-on-surface-variant)'">
                       Al enviar, el formulario se reiniciará para una nueva solicitud
                     </span>
                   }
@@ -611,10 +629,10 @@
                 type="button"
                 matButton="outlined"
               >
-                Atras
+                Atrás
                 <mat-icon
-                  class="hidden! sm:inline-block! scale-125"
-                  aria-hidden="false"
+                  class="step-nav-icon"
+                  aria-hidden="true"
                   fontIcon="arrow_back"
                 ></mat-icon>
               </button>

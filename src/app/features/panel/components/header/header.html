@@ -1,29 +1,47 @@
-<header class="w-full flex justify-between items-center px-2 sm:px-4 md:px-8 py-2 sm:py-4 border-b">
-  <div class="flex items-center gap-0 md:gap-2">
-    <button
-      (click)="goToHome()"
-      class="header-button-theme"
-      matIconButton
-      aria-label="Botón ícono para ir al inicio"
-      type="button"
-    >
-      <mat-icon class="scale-125">support_agent</mat-icon>
-    </button>
-    <div class="flex flex-col">
-      <span class="text-xl">Soporte</span>
-      <span class="hidden md:block text-xs">{{ currentUser()?.username }}</span>
-    </div>
-  </div>
-  <div>
-    <div class="hidden md:block my-button">
-      <button type="button" (click)="logOunt()" matButton>
+<header class="border-b border-outline-variant bg-surface-container">
+  <div class="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+    <a routerLink="/panel" class="brand flex min-w-0 items-center gap-3">
+      <span class="brand-icon" aria-hidden="true">
+        <mat-icon>support_agent</mat-icon>
+      </span>
+      <span class="flex min-w-0 flex-col leading-tight">
+        <span class="truncate text-lg font-bold">Soporte SISOL</span>
+        @if (currentUser()?.username) {
+          <span class="truncate text-sm text-muted-foreground">{{ currentUser()?.username }}</span>
+        }
+      </span>
+    </a>
+
+    <nav class="hidden items-center gap-1 md:flex" aria-label="Navegación principal">
+      <a
+        routerLink="/panel"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="nav-link-active"
+        class="nav-link"
+      >
+        Inicio
+      </a>
+      <a routerLink="/panel/crear-solicitud" routerLinkActive="nav-link-active" class="nav-link">
+        Crear solicitud
+      </a>
+      <a routerLink="/panel/mis-solicitudes" routerLinkActive="nav-link-active" class="nav-link">
+        Mis solicitudes
+      </a>
+    </nav>
+
+    <div class="flex shrink-0 items-center">
+      <button type="button" (click)="logOunt()" matButton class="hidden! md:inline-flex!">
         <mat-icon>logout</mat-icon>
         Salir
       </button>
-    </div>
-    <div class="block md:hidden">
-      <button type="button" (click)="goToHome()" matIconButton aria-label="Botón ícono para salir">
-        <mat-icon class="scale-75">logout</mat-icon>
+      <button
+        type="button"
+        (click)="logOunt()"
+        matIconButton
+        class="header-icon-button md:hidden!"
+        aria-label="Cerrar sesión"
+      >
+        <mat-icon>logout</mat-icon>
       </button>
     </div>
   </div>

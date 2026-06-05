@@ -1,0 +1,9 @@
+/* The default stepper header (small numbered circles with no labels) is replaced
+   by the custom "Paso X de Y" progress indicator in the template */
+:host ::ng-deep .mat-horizontal-stepper-header-container {
+  display: none;
+}
+
+:host ::ng-deep .mat-horizontal-content-container {
+  padding: 0;
+}

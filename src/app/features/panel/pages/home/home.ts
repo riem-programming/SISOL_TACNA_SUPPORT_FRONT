@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Card } from '../../components/card/card';
 import { CardInput } from '../../components/card/model/card.model';
 import { Router } from '@angular/router';
+import { CurrentUserService } from '../../../../core/services/current-user-service';
 
 @Component({
   selector: 'app-home',
@@ -10,13 +11,16 @@ import { Router } from '@angular/router';
   styleUrl: './home.css',
 })
 export default class Home {
+  private currentUserService = inject(CurrentUserService);
+  currentUser = this.currentUserService.user;
+
   valueCreateCard: CardInput = {
     title: 'Crear Solicitud',
-    subtitle: 'Reporta un problema o requiere soporte',
+    subtitle: 'Reporta un problema o pide soporte',
     description:
       'Abre una nueva solicitud para reportar problemas de usuario, firma, sistema u otros.',
     nameButton: 'Crear Nueva Solicitud',
-    nameIcon: 'add_circle_outline',
+    nameIcon: 'add_circle',
     primary: true,
   };
 

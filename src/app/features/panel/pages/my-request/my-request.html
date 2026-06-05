@@ -1,15 +1,14 @@
-<section class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-  <div class="max-w-2xl mx-auto">
-    <!-- HEADER — oculto en mobile -->
-    <div class="hidden sm:block mb-8 space-y-1">
-      <h2 class="text-2xl sm:text-3xl font-bold">Mis Solicitudes</h2>
-      <p class="text-sm sm:text-base text-muted-foreground">
+<section class="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+  <div class="mx-auto w-full max-w-2xl">
+    <div class="mb-6 space-y-1 sm:mb-8">
+      <h1 class="text-2xl font-bold sm:text-3xl">Mis Solicitudes</h1>
+      <p class="text-base text-muted-foreground sm:text-lg">
         Consulta el estado de todas tus solicitudes de soporte
       </p>
     </div>
 
     <!-- FILTROS -->
-    <div class="flex flex-col gap-4 mb-6">
+    <div class="mb-6 flex flex-col gap-4">
       <!-- Búsqueda por código -->
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Código de ticket</mat-label>
@@ -19,21 +18,23 @@
 
       <!-- Chips tipo de solicitud -->
       <div class="flex flex-col gap-2">
-        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Tipo de solicitud
-        </span>
+        <span class="text-sm font-medium text-muted-foreground">Tipo de solicitud</span>
         <div class="flex flex-wrap gap-2">
           <button
+            type="button"
             class="chip"
             [class.chip-active]="selectedType() === null"
+            [attr.aria-pressed]="selectedType() === null"
             (click)="selectedType.set(null)"
           >
             Todos
           </button>
           @for (item of requestTypes(); track item.id) {
             <button
+              type="button"
               class="chip"
               [class.chip-active]="selectedType() === item.id"
+              [attr.aria-pressed]="selectedType() === item.id"
               (click)="selectedType.set(item.id)"
             >
               {{ item.emoji }} {{ item.short_name }}
@@ -44,21 +45,23 @@
 
       <!-- Chips prioridad -->
       <div class="flex flex-col gap-2">
-        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Prioridad
-        </span>
+        <span class="text-sm font-medium text-muted-foreground">Prioridad</span>
         <div class="flex flex-wrap gap-2">
           <button
+            type="button"
             class="chip"
             [class.chip-active]="selectedPriority() === null"
+            [attr.aria-pressed]="selectedPriority() === null"
             (click)="selectedPriority.set(null)"
           >
             Todos
           </button>
           @for (item of priorities(); track item.id) {
             <button
+              type="button"
               class="chip"
               [class.chip-active]="selectedPriority() === item.id"
+              [attr.aria-pressed]="selectedPriority() === item.id"
               (click)="selectedPriority.set(item.id)"
             >
               {{ item.emoji }} {{ item.short_name }}
@@ -68,65 +71,74 @@
       </div>
     </div>
 
-    <hr class="border-border mb-4" />
+    <hr class="mb-4 border-border" />
 
-    <!-- META resultados -->
-    <p class="text-xs text-muted-foreground mb-3">
-      Mostrando {{ filteredTickets().length }} solicitud{{
-        filteredTickets().length !== 1 ? 'es' : ''
-      }}
-    </p>
-
-    <!-- CARDS -->
-    <div class="flex flex-col gap-3 pb-24">
-      @for (ticket of filteredTickets(); track ticket.id) {
-        <div class="ticket-card" (click)="goToTicket(ticket.code)">
-          <div class="flex items-start justify-between mb-2">
-            <span class="font-mono text-xs text-muted-foreground">{{ ticket.code }}</span>
-            <span class="text-xs text-muted-foreground">{{
-              ticket.createdAt | date: 'dd MMM, HH:mm'
-            }}</span>
+    @if (loading()) {
+      <!-- LOADING: skeletons -->
+      <div class="flex flex-col gap-3" role="status" aria-live="polite" aria-label="Cargando solicitudes">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="skeleton-card animate-pulse">
+            <div class="mb-3 flex justify-between">
+              <span class="skeleton-line w-32"></span>
+              <span class="skeleton-line w-20"></span>
+            </div>
+            <span class="skeleton-line mb-3 w-48"></span>
+            <div class="flex justify-between">
+              <span class="skeleton-line w-24"></span>
+              <span class="skeleton-line w-16"></span>
+            </div>
           </div>
-          <p class="text-sm font-medium mb-1">
-            {{ getRequestType(ticket.request_type_id)?.short_name }}
-          </p>
-          <div class="flex items-center justify-between mt-3">
-            <span
-              [className]="
-                'state-badge ' + getStateBadgeClass(getTicketState(ticket.state_id)?.code)
-              "
-            >
-              {{ getTicketState(ticket.state_id)?.name }}
-            </span>
-            <span class="priority-label">
+        }
+      </div>
+    } @else {
+      <!-- META resultados -->
+      <p class="mb-3 text-sm text-muted-foreground">
+        Mostrando {{ filteredTickets().length }} solicitud{{
+          filteredTickets().length !== 1 ? 'es' : ''
+        }}
+      </p>
+
+      <!-- CARDS -->
+      <div class="flex flex-col gap-3 pb-8">
+        @for (ticket of filteredTickets(); track ticket.id) {
+          <button type="button" class="ticket-card" (click)="goToTicket(ticket.code)">
+            <div class="mb-2 flex items-start justify-between gap-2">
+              <span class="font-mono text-sm text-muted-foreground">{{ ticket.code }}</span>
+              <span class="text-sm text-muted-foreground">{{
+                ticket.createdAt | date: 'dd MMM, HH:mm'
+              }}</span>
+            </div>
+            <p class="mb-1 text-base font-semibold">
+              {{ getRequestType(ticket.request_type_id)?.short_name }}
+            </p>
+            <div class="mt-3 flex items-center justify-between gap-2">
               <span
                 [className]="
-                  'priority-dot ' + getPriorityDotClass(getPriority(ticket.priority_id)?.code)
+                  'state-badge ' + getStateBadgeClass(getTicketState(ticket.state_id)?.code)
                 "
               >
+                {{ getTicketState(ticket.state_id)?.name }}
               </span>
-              {{ getPriority(ticket.priority_id)?.short_name }}
-            </span>
-            <mat-icon class="text-muted-foreground text-base">chevron_right</mat-icon>
+              <span class="priority-label">
+                <span
+                  [className]="
+                    'priority-dot ' + getPriorityDotClass(getPriority(ticket.priority_id)?.code)
+                  "
+                >
+                </span>
+                {{ getPriority(ticket.priority_id)?.short_name }}
+              </span>
+              <mat-icon class="text-muted-foreground" aria-hidden="true">chevron_right</mat-icon>
+            </div>
+          </button>
+        } @empty {
+          <div class="flex flex-col items-center gap-3 py-14 text-center text-muted-foreground">
+            <mat-icon class="empty-icon" aria-hidden="true">inbox</mat-icon>
+            <p class="text-base font-medium">Sin solicitudes con estos filtros</p>
+            <p class="text-sm">Prueba cambiando los filtros o crea una nueva solicitud</p>
           </div>
-        </div>
-      } @empty {
-        <div class="flex flex-col items-center py-12 text-muted-foreground gap-2">
-          <mat-icon class="text-4xl opacity-40">inbox</mat-icon>
-          <p class="text-sm">Sin solicitudes con estos filtros</p>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    }
   </div>
-
-  <!-- FAB crear solicitud -->
-  <button
-    mat-fab
-    color="primary"
-    class="fixed! bottom-6! right-4!"
-    (click)="openCreateDialog()"
-    aria-label="Crear nueva solicitud"
-  >
-    <mat-icon>add</mat-icon>
-  </button>
 </section>

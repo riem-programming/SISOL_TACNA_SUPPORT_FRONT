@@ -10,16 +10,36 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$cyan-palette,
+        // Medical blue: institutional, trustworthy, best contrast for 40+ users
+        primary: mat.$azure-palette,
         tertiary: mat.$orange-palette,
       ),
-      typography: Roboto,
+      typography: (
+        // Atkinson Hyperlegible Next: designed by the Braille Institute for
+        // maximum legibility — ideal for the 40+ hospital staff audience
+        plain-family: ('Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', sans-serif),
+        brand-family: ('Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', sans-serif),
+      ),
       density: 0,
     )
   );
 
   // aplicamos las variables como clases de angular material
   @include mat.system-classes();
+
+  // Larger touch targets app-wide: 48px buttons with 16px labels (WCAG 2.5.5)
+  @include mat.button-overrides(
+    (
+      filled-container-height: 48px,
+      filled-label-text-size: 1rem,
+      outlined-container-height: 48px,
+      outlined-label-text-size: 1rem,
+      text-container-height: 48px,
+      text-label-text-size: 1rem,
+      tonal-container-height: 48px,
+      tonal-label-text-size: 1rem,
+    )
+  );
 }
 
 body {
@@ -33,7 +53,8 @@ body {
   // variables at https://material.angular.dev/guide/system-variables
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
+  // body-large (16px) instead of body-medium (14px): base size for 40+ readability
+  font: var(--mat-sys-body-large);
 
   // Reset the user agent margin.
   margin: 0;

@@ -1,17 +1,45 @@
 .enter-animation {
-  animation: slide-fade 1s;
+  animation: slide-fade 0.4s ease-out;
 }
 @keyframes slide-fade {
   from {
     opacity: 0;
-    scale: 0.6;
+    scale: 0.97;
   }
   to {
     opacity: 1;
-    scale: 1; 
+    scale: 1;
   }
 }
 
 .text-primary {
-    color: var(--mat-sys-primary)
+  color: var(--mat-sys-primary);
+}
+
+/* Subtle clinical-blue atmosphere; adapts to light/dark via system tokens */
+.auth-bg {
+  background:
+    radial-gradient(
+      1200px 600px at 50% -10%,
+      color-mix(in srgb, var(--mat-sys-primary) 14%, transparent),
+      transparent 70%
+    ),
+    var(--mat-sys-surface);
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.brand-badge mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
 }

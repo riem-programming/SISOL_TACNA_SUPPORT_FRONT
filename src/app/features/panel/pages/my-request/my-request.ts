@@ -2,9 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RequestTypeService } from '../../../../core/services/request-type-service';
 import { PriorityService } from '../../../../core/services/priority-service';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { Ticket } from '../../../../core/models/ticket.model';
 import { DatePipe } from '@angular/common';
@@ -14,7 +12,7 @@ import { StateTicketService } from '../../../../core/services/state-ticket-servi
 
 @Component({
   selector: 'app-my-request',
-  imports: [MatInputModule, MatSelectModule, MatIconModule, MatButtonModule, DatePipe, FormField],
+  imports: [MatInputModule, MatIconModule, DatePipe, FormField],
   templateUrl: './my-request.html',
   styleUrl: './my-request.css',
   providers: [TicketService],
@@ -28,6 +26,7 @@ export default class MyRequest {
   requestTypes = computed(() => this.requestTypeService.getAll().filter((v) => v.is_active));
   priorities = computed(() => this.priorityService.getAll());
   tickets = computed(() => this.ticketService.getAll());
+  loading = this.ticketService.loading;
   stateTickets = computed(() => this.stateTicketService.getAll());
 
   // Signals de filtro — null significa "Todos"
@@ -70,10 +69,6 @@ export default class MyRequest {
       high: 'dot-high',
     };
     return map[priorityCode ?? ''] ?? 'dot-low';
-  }
-
-  openCreateDialog() {
-    this.router.navigate(['panel', 'crear-solicitud']);
   }
 
   getRequestType(id: number) {

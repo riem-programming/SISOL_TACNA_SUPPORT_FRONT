@@ -1,4 +1,7 @@
-<div>
+<div class="flex min-h-dvh flex-col">
   <app-header />
-  <router-outlet />
+  <main class="app-shell-main flex w-full flex-1 flex-col pb-24 md:pb-0">
+    <router-outlet />
+  </main>
+  <app-bottom-nav />
 </div>

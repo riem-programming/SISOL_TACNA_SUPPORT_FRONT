@@ -4,7 +4,6 @@ import {
   FormField,
   hidden,
   maxLength,
-  minLength,
   required,
   submit,
 } from '@angular/forms/signals';
@@ -295,6 +294,21 @@ export default class CreateRequest implements OnInit, OnDestroy {
     return this.supportModeService.getById(id);
   });
 
+  // Mobile-friendly progress indicator (the default stepper header is hidden via CSS)
+  private hasSupportModeStep = computed(() => {
+    const code = this.currentRequestType()?.code;
+    return (
+      code !== undefined &&
+      code !== 'TICKET_RELEASE_LT30' &&
+      code !== 'TICKET_UNLOCK_GT30' &&
+      code !== 'CREDIT_NOTE_CREATE' &&
+      code !== 'CREDIT_NOTE_REVERT' &&
+      code !== 'USR_CREATE'
+    );
+  });
+  totalSteps = computed(() => (this.hasSupportModeStep() ? 4 : 3));
+  stepSegments = computed(() => Array.from({ length: this.totalSteps() }));
+
   filteredSpecialtiesOption = computed(() => {
     const value = this.formCreateModel().speciality;
     if (SPECIALTIES.find((_) => _.label === value)) return [];
@@ -522,11 +536,6 @@ export default class CreateRequest implements OnInit, OnDestroy {
     if (file.type === 'application/pdf') return 'picture_as_pdf';
     if (file.type.startsWith('image/')) return 'image';
     return 'insert_drive_file';
-  }
-
-  getFileIconColor(file: File): string {
-    if (file.type === 'application/pdf') return 'text-red-500';
-    return 'text-blue-500';
   }
 
   formatFileSize(bytes: number): string {

@@ -1,29 +1,35 @@
 <div
-  class="flex h-full auth-theme py-0 sm:py-12"
+  class="auth-theme auth-bg flex min-h-dvh flex-col sm:items-center sm:justify-center sm:px-6 sm:py-12"
   animate.enter="enter-animation"
   cdkTrapFocus
   [cdkTrapFocusAutoCapture]="true"
 >
   <div
-    class="relative my-0 sm:m-auto w-full sm:w-120 rounded-none sm:rounded-3xl dark:bg-gray-800 bg-gray-200 py-12 overflow-hidden"
+    class="relative flex w-full flex-1 flex-col justify-center overflow-hidden bg-surface px-6 py-10 sm:max-w-md sm:flex-none sm:rounded-3xl sm:border sm:border-outline-variant sm:bg-surface-container-low sm:px-10 sm:shadow-lg"
   >
     @if (isLoading()) {
-      <mat-progress-bar mode="indeterminate" class="absolute -top-12 left-0 z-50" />
-      <div class="absolute inset-0 z-40 bg-black/20 backdrop-blur-[0.5px] cursor-not-allowed"></div>
+      <mat-progress-bar mode="indeterminate" class="absolute top-0 left-0 right-0 z-50" />
+      <div class="absolute inset-0 z-40 cursor-not-allowed bg-on-surface/20 backdrop-blur-[0.5px]"></div>
     }
 
+    <div class="mb-8 flex flex-col items-center gap-3 text-center">
+      <span class="brand-badge" aria-hidden="true">
+        <mat-icon>support_agent</mat-icon>
+      </span>
+      <h1 class="text-2xl font-bold">Soporte SISOL Tacna</h1>
+      <p class="text-base text-muted-foreground">Mesa de ayuda para el personal del hospital</p>
+    </div>
+
     @if (isLoginSection()) {
-      <div
-        class="m-auto w-2/3 h-full flex flex-col justify-center gap-8 transition-opacity duration-200"
-      >
-        <div class="flex flex-col gap-4">
-          <h1 class="text-3xl lg:text-4xl">Iniciar una sesión</h1>
+      <div class="flex w-full flex-col gap-6 transition-opacity duration-200">
+        <div class="flex flex-col gap-2">
+          <h2 class="text-xl font-bold">Inicia sesión</h2>
 
           <div>
-            <span>¿No tiene cuenta? </span>
+            <span>¿No tienes cuenta? </span>
             <button
               type="button"
-              class="text-primary cursor-pointer hover:underline"
+              class="text-primary cursor-pointer font-medium hover:underline"
               (click)="isLoginSection.set(false)"
             >
               <span>Crear cuenta</span>
@@ -32,7 +38,7 @@
         </div>
 
         <form class="w-full" (submit)="login($event)">
-          <div class="flex flex-col w-full gap-1">
+          <div class="flex w-full flex-col gap-1">
             <mat-form-field hideRequiredMarker>
               <mat-label>Usuario</mat-label>
 
@@ -54,7 +60,13 @@
                 [formField]="formAuth.password"
               />
 
-              <button type="button" matIconButton matSuffix (click)="toggleHidePassword($event)">
+              <button
+                type="button"
+                matIconButton
+                matSuffix
+                (click)="toggleHidePassword($event)"
+                [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+              >
                 <mat-icon>
                   {{ hidePassword() ? 'visibility_off' : 'visibility' }}
                 </mat-icon>
@@ -76,17 +88,15 @@
         </form>
       </div>
     } @else {
-      <div
-        class="m-auto w-2/3 h-full flex flex-col justify-center gap-8 transition-opacity duration-200"
-      >
-        <div class="flex flex-col gap-4">
-          <h1 class="text-3xl lg:text-4xl">Crear una cuenta</h1>
+      <div class="flex w-full flex-col gap-6 transition-opacity duration-200">
+        <div class="flex flex-col gap-2">
+          <h2 class="text-xl font-bold">Crea tu cuenta</h2>
 
           <div>
             <span>¿Ya tienes una cuenta? </span>
             <button
               type="button"
-              class="text-primary cursor-pointer hover:underline"
+              class="text-primary cursor-pointer font-medium hover:underline"
               (click)="isLoginSection.set(true)"
             >
               <span>Iniciar sesión</span>
@@ -95,7 +105,7 @@
         </div>
 
         <form class="w-full" (submit)="create($event)">
-          <div class="flex flex-col w-full gap-1">
+          <div class="flex w-full flex-col gap-1">
             <mat-form-field hideRequiredMarker>
               <mat-label>Usuario</mat-label>
 
@@ -117,7 +127,13 @@
                 [formField]="formCreateAuth.password"
               />
 
-              <button type="button" matIconButton matSuffix (click)="toggleHidePassword($event)">
+              <button
+                type="button"
+                matIconButton
+                matSuffix
+                (click)="toggleHidePassword($event)"
+                [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+              >
                 <mat-icon>
                   {{ hidePassword() ? 'visibility_off' : 'visibility' }}
                 </mat-icon>
@@ -144,6 +160,9 @@
                 matIconButton
                 matSuffix
                 (click)="toggleHideConfirmPassword($event)"
+                [attr.aria-label]="
+                  hideConfirmPassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'
+                "
               >
                 <mat-icon>
                   {{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}

@@ -1,14 +1,9 @@
 @use '@angular/material' as mat;
 
-.header-button-theme {
+.header-icon-button {
   @include mat.icon-button-overrides(
     (
       state-layer-size: 48px,
-      icon-color: var(--mat-sys-primary),
     )
   );
-}
-
-.my-button {
-  --mat-button-text-label-text-color: var(--mat-sys-body-medium);
 }

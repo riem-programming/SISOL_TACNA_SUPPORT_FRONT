@@ -1,0 +1,14 @@
+<nav aria-label="Navegación principal">
+  <a routerLink="/panel" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active">
+    <span class="nav-icon"><mat-icon aria-hidden="true">home</mat-icon></span>
+    <span class="nav-label">Inicio</span>
+  </a>
+  <a routerLink="/panel/crear-solicitud" routerLinkActive="active">
+    <span class="nav-icon"><mat-icon aria-hidden="true">add_circle</mat-icon></span>
+    <span class="nav-label">Crear</span>
+  </a>
+  <a routerLink="/panel/mis-solicitudes" routerLinkActive="active">
+    <span class="nav-icon"><mat-icon aria-hidden="true">list_alt</mat-icon></span>
+    <span class="nav-label">Solicitudes</span>
+  </a>
+</nav>
