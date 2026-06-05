@@ -9,7 +9,7 @@
       [class.bg-surface-container-high]="!value().primary"
       [class.text-on-surface-variant]="!value().primary"
     >
-      <mat-icon aria-hidden="true" [fontIcon]="value().nameIcon"></mat-icon>
+      <mat-icon aria-hidden="true">{{ value().nameIcon }}</mat-icon>
     </div>
     <div class="min-w-0 flex-1">
       <h2 class="text-lg font-bold">{{ value().title }}</h2>
@@ -30,7 +30,7 @@
         matButton="filled"
       >
         {{ value().nameButton }}
-        <mat-icon iconPositionEnd aria-hidden="true" fontIcon="arrow_forward"></mat-icon>
+        <mat-icon iconPositionEnd aria-hidden="true">arrow_forward</mat-icon>
       </button>
     } @else {
       <button
@@ -40,7 +40,7 @@
         matButton="outlined"
       >
         {{ value().nameButton }}
-        <mat-icon iconPositionEnd aria-hidden="true" fontIcon="arrow_forward"></mat-icon>
+        <mat-icon iconPositionEnd aria-hidden="true">arrow_forward"</mat-icon>
       </button>
     }
   </div>
