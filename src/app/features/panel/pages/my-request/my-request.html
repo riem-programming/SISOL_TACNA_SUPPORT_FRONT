@@ -1,1 +1,132 @@
-<p>my-request works!</p>
+<section class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto">
+    <!-- HEADER — oculto en mobile -->
+    <div class="hidden sm:block mb-8 space-y-1">
+      <h2 class="text-2xl sm:text-3xl font-bold">Mis Solicitudes</h2>
+      <p class="text-sm sm:text-base text-muted-foreground">
+        Consulta el estado de todas tus solicitudes de soporte
+      </p>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="flex flex-col gap-4 mb-6">
+      <!-- Búsqueda por código -->
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Código de ticket</mat-label>
+        <input matInput placeholder="Ej: TK-040626-TCBH" [formField]="searchControl" />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Chips tipo de solicitud -->
+      <div class="flex flex-col gap-2">
+        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          Tipo de solicitud
+        </span>
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="chip"
+            [class.chip-active]="selectedType() === null"
+            (click)="selectedType.set(null)"
+          >
+            Todos
+          </button>
+          @for (item of requestTypes(); track item.id) {
+            <button
+              class="chip"
+              [class.chip-active]="selectedType() === item.id"
+              (click)="selectedType.set(item.id)"
+            >
+              {{ item.emoji }} {{ item.short_name }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Chips prioridad -->
+      <div class="flex flex-col gap-2">
+        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          Prioridad
+        </span>
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="chip"
+            [class.chip-active]="selectedPriority() === null"
+            (click)="selectedPriority.set(null)"
+          >
+            Todos
+          </button>
+          @for (item of priorities(); track item.id) {
+            <button
+              class="chip"
+              [class.chip-active]="selectedPriority() === item.id"
+              (click)="selectedPriority.set(item.id)"
+            >
+              {{ item.emoji }} {{ item.short_name }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-border mb-4" />
+
+    <!-- META resultados -->
+    <p class="text-xs text-muted-foreground mb-3">
+      Mostrando {{ filteredTickets().length }} solicitud{{
+        filteredTickets().length !== 1 ? 'es' : ''
+      }}
+    </p>
+
+    <!-- CARDS -->
+    <div class="flex flex-col gap-3 pb-24">
+      @for (ticket of filteredTickets(); track ticket.id) {
+        <div class="ticket-card" (click)="goToTicket(ticket.code)">
+          <div class="flex items-start justify-between mb-2">
+            <span class="font-mono text-xs text-muted-foreground">{{ ticket.code }}</span>
+            <span class="text-xs text-muted-foreground">{{
+              ticket.createdAt | date: 'dd MMM, HH:mm'
+            }}</span>
+          </div>
+          <p class="text-sm font-medium mb-1">
+            {{ getRequestType(ticket.request_type_id)?.short_name }}
+          </p>
+          <div class="flex items-center justify-between mt-3">
+            <span
+              [className]="
+                'state-badge ' + getStateBadgeClass(getTicketState(ticket.state_id)?.code)
+              "
+            >
+              {{ getTicketState(ticket.state_id)?.name }}
+            </span>
+            <span class="priority-label">
+              <span
+                [className]="
+                  'priority-dot ' + getPriorityDotClass(getPriority(ticket.priority_id)?.code)
+                "
+              >
+              </span>
+              {{ getPriority(ticket.priority_id)?.short_name }}
+            </span>
+            <mat-icon class="text-muted-foreground text-base">chevron_right</mat-icon>
+          </div>
+        </div>
+      } @empty {
+        <div class="flex flex-col items-center py-12 text-muted-foreground gap-2">
+          <mat-icon class="text-4xl opacity-40">inbox</mat-icon>
+          <p class="text-sm">Sin solicitudes con estos filtros</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- FAB crear solicitud -->
+  <button
+    mat-fab
+    color="primary"
+    class="fixed! bottom-6! right-4!"
+    (click)="openCreateDialog()"
+    aria-label="Crear nueva solicitud"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</section>
