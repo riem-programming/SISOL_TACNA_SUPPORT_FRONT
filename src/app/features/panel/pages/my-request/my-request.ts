@@ -5,14 +5,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { Ticket } from '../../../../core/models/ticket.model';
-import { DatePipe } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
 import { TicketService } from '../../../../core/services/ticket-service';
 import { StateTicketService } from '../../../../core/services/state-ticket-service';
 
 @Component({
   selector: 'app-my-request',
-  imports: [MatInputModule, MatIconModule, DatePipe, FormField],
+  imports: [MatInputModule, MatIconModule, FormField],
   templateUrl: './my-request.html',
   styleUrl: './my-request.css',
 })
@@ -46,6 +45,37 @@ export default class MyRequest {
       return matchSearch && matchType && matchPriority;
     });
   });
+
+  // Chips toggle: tapping the active chip clears that dimension
+  toggleType(id: number) {
+    this.selectedType.update((current) => (current === id ? null : id));
+  }
+
+  togglePriority(id: number) {
+    this.selectedPriority.update((current) => (current === id ? null : id));
+  }
+
+  clearFilters() {
+    this.selectedType.set(null);
+    this.selectedPriority.set(null);
+  }
+
+  // Chat-style relative date: today -> HH:mm, yesterday -> "Ayer", older -> "dd MMM"
+  formatTicketDate(value: Date): string {
+    const date = new Date(value);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday);
+    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+    if (date >= startOfToday) {
+      return date.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+    if (date >= startOfYesterday) {
+      return 'Ayer';
+    }
+    return date.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
+  }
 
   goToTicket(code: string) {
     this.router.navigate(['/tickets', code]);

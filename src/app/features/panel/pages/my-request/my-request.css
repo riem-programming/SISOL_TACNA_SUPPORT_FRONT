@@ -1,6 +1,15 @@
+/* Hide scrollbar on the horizontal chip row (keeps scroll behavior) */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .chip {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0; /* prevents chips from squashing inside the scroll row */
   min-height: 44px; /* WCAG touch target */
   padding: 8px 18px;
   border-radius: 22px;
@@ -25,34 +34,96 @@
   font-weight: 600;
 }
 
-.ticket-card {
-  display: block;
+/* Visual separator between type chips and priority chips */
+.chip-divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 28px;
+  background: var(--mat-sys-outline-variant);
+}
+
+/* Conversation-style ticket list: edge-to-edge on mobile, contained card on desktop */
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  margin-inline: -1rem;
+}
+
+@media (min-width: 640px) {
+  .ticket-list {
+    margin-inline: 0;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 16px;
+    background: var(--mat-sys-surface-container-low);
+    overflow: hidden;
+  }
+}
+
+.ticket-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   width: 100%;
   text-align: left;
   font-family: inherit;
   font-size: inherit;
   color: inherit;
-  background: var(--mat-sys-surface-container-low);
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 16px;
-  padding: 16px 18px;
+  background: transparent;
+  border: none;
+  padding: 14px 1rem;
   cursor: pointer;
-  transition:
-    border-color 0.15s,
-    background-color 0.15s,
-    box-shadow 0.15s;
+  transition: background-color 0.15s;
 }
 
-.ticket-card:hover {
-  border-color: var(--mat-sys-outline);
-  background: var(--mat-sys-surface-container);
+.ticket-row + .ticket-row {
+  border-top: 1px solid var(--mat-sys-outline-variant);
 }
 
-.state-badge {
+.ticket-row:active {
+  background: var(--mat-sys-surface-container-high);
+}
+
+@media (min-width: 640px) {
+  .ticket-row {
+    padding: 16px 18px;
+  }
+
+  .ticket-row:hover {
+    background: var(--mat-sys-surface-container);
+  }
+}
+
+/* Leading avatar with the request-type emoji */
+.row-avatar {
   display: inline-flex;
   align-items: center;
-  padding: 5px 12px;
-  border-radius: 20px;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1.375rem;
+  background: var(--mat-sys-surface-container-high);
+}
+
+.row-chevron {
+  display: none;
+  flex-shrink: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+@media (min-width: 640px) {
+  .row-chevron {
+    display: inline-flex;
+  }
+}
+
+/* Compact state pill (reuses badge-* color pairs) */
+.state-text {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 12px;
   font-size: 0.8125rem;
   font-weight: 600;
 }
@@ -101,17 +172,14 @@
 }
 
 /* Loading skeletons */
-.skeleton-card {
-  background: var(--mat-sys-surface-container-low);
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 16px;
-  padding: 16px 18px;
-}
-
 .skeleton-line {
   display: block;
   height: 14px;
   border-radius: 7px;
+  background: var(--mat-sys-surface-container-highest);
+}
+
+.skeleton-circle {
   background: var(--mat-sys-surface-container-highest);
 }
 
