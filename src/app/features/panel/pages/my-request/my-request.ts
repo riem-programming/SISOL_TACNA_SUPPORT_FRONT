@@ -15,7 +15,6 @@ import { StateTicketService } from '../../../../core/services/state-ticket-servi
   imports: [MatInputModule, MatIconModule, DatePipe, FormField],
   templateUrl: './my-request.html',
   styleUrl: './my-request.css',
-  providers: [TicketService],
 })
 export default class MyRequest {
   private router = inject(Router);

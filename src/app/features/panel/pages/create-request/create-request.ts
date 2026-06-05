@@ -30,6 +30,7 @@ import { SystemRoleService } from '../../../../core/services/system-role-service
 import { RequestType } from '../../../../core/models/requestType.model';
 import { SupportMode } from '../../../../core/models/supportMode.model';
 import { CreateRequestService } from './services/create-request-service';
+import { TicketService } from '../../../../core/services/ticket-service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -71,6 +72,7 @@ export default class CreateRequest implements OnInit, OnDestroy {
   private systemRoleService = inject(SystemRoleService);
   systemRoles = computed(() => this.systemRoleService.getAll());
   private createRequestService = inject(CreateRequestService);
+  private ticketService = inject(TicketService);
   private router = inject(Router);
 
   isLoading = computed(() => this.createRequestService.loading());
@@ -403,6 +405,7 @@ export default class CreateRequest implements OnInit, OnDestroy {
           }
           const response = result.data;
           this.openSnackBar(`¡Solicitud creada exitosamente!`, 'OK');
+          this.ticketService.loadData(); // refresh cached ticket list
           if (data.keepCreating) {
             this.resetAllStateForm();
             return;
@@ -423,6 +426,7 @@ export default class CreateRequest implements OnInit, OnDestroy {
           }
           const response = result.data;
           this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
+          this.ticketService.loadData(); // refresh cached ticket list
 
           if (data.keepCreating) {
             this.resetSpecificStateForm(['ticketNumber', 'attachments']);
@@ -440,6 +444,7 @@ export default class CreateRequest implements OnInit, OnDestroy {
 
           const response = result.data;
           this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
+          this.ticketService.loadData(); // refresh cached ticket list
           if (data.keepCreating) {
             this.resetSpecificStateForm([
               'firstNames',

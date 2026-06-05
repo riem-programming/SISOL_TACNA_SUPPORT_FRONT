@@ -1,20 +1,32 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { first, Subject, takeUntil } from 'rxjs';
 import { Ticket } from '../models/ticket.model';
+import { CurrentUserService } from './current-user-service';
 
 @Injectable({
-  providedIn: 'platform',
+  providedIn: 'root',
 })
 export class TicketService {
   private readonly baseUrl = 'http://localhost:3000/ticket';
   private http = inject(HttpClient);
+  private currentUserService = inject(CurrentUserService);
   readonly loading = signal(false);
   private onDestroy = new Subject<void>();
   private state = signal({ ticket: new Map<number, Ticket>() });
 
   constructor() {
-    this.loadData();
+    // Cache lifecycle is bound to the session: each login loads the
+    // current user's tickets, logout clears them. This prevents one
+    // user's cached tickets from leaking into another user's session.
+    effect(() => {
+      const user = this.currentUserService.user();
+      if (user === null) {
+        this.clear();
+        return;
+      }
+      this.loadData();
+    });
   }
 
   loadData() {
@@ -46,6 +58,12 @@ export class TicketService {
 
   getById(id: number): Ticket | undefined {
     return this.state().ticket.get(id);
+  }
+
+  private clear() {
+    this.onDestroy.next(); // cancel any in-flight request
+    this.state.set({ ticket: new Map() });
+    this.loading.set(false);
   }
 
   private updateList(data: Ticket[]) {
