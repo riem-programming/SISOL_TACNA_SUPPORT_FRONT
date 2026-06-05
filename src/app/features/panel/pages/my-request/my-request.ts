@@ -27,6 +27,11 @@ export default class MyRequest {
   // "Not initialized yet" counts as loading so a cold load never
   // flashes the empty state before the first fetch starts
   loading = computed(() => !this.ticketService.initialized() || this.ticketService.loading());
+  error = this.ticketService.error;
+
+  retry() {
+    this.ticketService.loadData();
+  }
   stateTickets = computed(() => this.stateTicketService.getAll());
 
   // Signals de filtro — null significa "Todos"

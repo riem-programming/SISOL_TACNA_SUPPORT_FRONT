@@ -15,6 +15,9 @@ export class TicketService {
   // True once the first load attempt has finished — lets consumers
   // distinguish "not loaded yet" from "loaded and not found"
   readonly initialized = signal(false);
+  // True when the last load failed — lets lists show an explicit
+  // error + retry instead of an ambiguous empty state
+  readonly error = signal(false);
   private onDestroy = new Subject<void>();
   private state = signal({ ticket: new Map<number, Ticket>() });
 
@@ -35,6 +38,7 @@ export class TicketService {
   loadData() {
     this.onDestroy.next();
     this.loading.set(true);
+    this.error.set(false);
     this.http
       .get<Ticket[]>(this.baseUrl)
       .pipe(takeUntil(this.onDestroy), first())
@@ -54,6 +58,7 @@ export class TicketService {
           this.state.set({ ticket: new Map() });
           this.loading.set(false);
           this.initialized.set(true);
+          this.error.set(true);
         },
       });
   }
@@ -78,6 +83,7 @@ export class TicketService {
     this.state.set({ ticket: new Map() });
     this.loading.set(false);
     this.initialized.set(false);
+    this.error.set(false);
   }
 
   private updateList(data: Ticket[]) {

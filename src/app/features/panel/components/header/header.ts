@@ -21,8 +21,7 @@ export class Header {
     if (isPlatformServer(this.platformId)) {
       return;
     }
-    this.currentUser.set(null);
-    localStorage.clear();
+    this.currentUserService.clearSession();
     this.router.navigate(['']);
   }
 }

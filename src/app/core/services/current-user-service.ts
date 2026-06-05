@@ -26,6 +26,16 @@ export class CurrentUserService {
     }
   }
 
+  // Single place to drop the session: used by logout and by the
+  // 401 interceptor when the JWT expires
+  clearSession() {
+    this.user.set(null);
+    if (isPlatformBrowser(this.platformId)) {
+      // Remove only our key — clear() would wipe unrelated storage
+      localStorage.removeItem('access_token');
+    }
+  }
+
   getDecodedToken(): JwtPayload | null {
     const token = localStorage.getItem('access_token');
 
