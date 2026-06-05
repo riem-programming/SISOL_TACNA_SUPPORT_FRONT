@@ -1,0 +1,98 @@
+<section class="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+  <div class="mx-auto w-full max-w-2xl">
+    <!-- Volver -->
+    <a routerLink="/panel/mis-solicitudes" class="back-link mb-5 sm:mb-6">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Volver a mis solicitudes
+    </a>
+
+    @if (loading()) {
+      <!-- LOADING: skeleton -->
+      <div class="flex flex-col gap-4" role="status" aria-live="polite" aria-label="Cargando solicitud">
+        <div class="detail-card animate-pulse">
+          <div class="flex items-center gap-4">
+            <span class="skeleton-circle"></span>
+            <div class="flex flex-1 flex-col gap-2">
+              <span class="skeleton-line w-40"></span>
+              <span class="skeleton-line w-28"></span>
+            </div>
+          </div>
+        </div>
+        <div class="detail-card animate-pulse">
+          <span class="skeleton-line mb-4 w-36"></span>
+          <span class="skeleton-line mb-4 w-48"></span>
+          <span class="skeleton-line mb-4 w-44"></span>
+          <span class="skeleton-line w-40"></span>
+        </div>
+      </div>
+    } @else if (ticket(); as t) {
+      <div class="flex flex-col gap-4 pb-8">
+        <!-- ENCABEZADO -->
+        <header class="detail-card">
+          <div class="flex items-center gap-4">
+            <span class="detail-avatar" aria-hidden="true">{{ requestType()?.emoji }}</span>
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <h1 class="text-xl font-bold sm:text-2xl">{{ requestType()?.short_name }}</h1>
+              <span class="font-mono text-sm text-muted-foreground">{{ t.code }}</span>
+            </div>
+          </div>
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <span [className]="'state-badge ' + getStateBadgeClass(state()?.code)">
+              {{ state()?.name }}
+            </span>
+            <span class="priority-label">
+              <span [className]="'priority-dot ' + getPriorityDotClass(priority()?.code)"></span>
+              Prioridad {{ priority()?.short_name }}
+            </span>
+          </div>
+        </header>
+
+        <!-- LÍNEA DE TIEMPO -->
+        <section class="detail-card" aria-labelledby="timeline-title">
+          <h2 id="timeline-title" class="section-title">¿En qué va mi solicitud?</h2>
+          <app-status-timeline [states]="states()" [currentStateId]="t.state_id" />
+        </section>
+
+        <!-- DATOS DE LA SOLICITUD -->
+        <section class="detail-card" aria-labelledby="data-title">
+          <h2 id="data-title" class="section-title">Datos de la solicitud</h2>
+          <dl class="data-list">
+            <div class="data-row">
+              <dt>Tipo de solicitud</dt>
+              <dd>{{ requestType()?.long_name }}</dd>
+            </div>
+            <div class="data-row">
+              <dt>Prioridad</dt>
+              <dd>{{ priority()?.emoji }} {{ priority()?.long_name }}</dd>
+            </div>
+            <div class="data-row">
+              <dt>Fecha de creación</dt>
+              <dd>{{ formatFullDate(t.createdAt) }}</dd>
+            </div>
+            <div class="data-row">
+              <dt>Última actualización</dt>
+              <dd>{{ formatFullDate(t.updateddAt) }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- Volver (persistente al final, no depende del gesto atrás) -->
+        <a routerLink="/panel/mis-solicitudes" class="back-button">
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>
+          Volver a mis solicitudes
+        </a>
+      </div>
+    } @else {
+      <!-- NO ENCONTRADO -->
+      <div class="flex flex-col items-center gap-4 py-16 text-center text-muted-foreground">
+        <mat-icon class="empty-icon" aria-hidden="true">search_off</mat-icon>
+        <p class="text-lg font-medium">No encontramos esta solicitud</p>
+        <p class="text-sm">Verifica el código o vuelve al listado de tus solicitudes</p>
+        <a routerLink="/panel/mis-solicitudes" class="back-button mt-2">
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>
+          Volver a mis solicitudes
+        </a>
+      </div>
+    }
+  </div>
+</section>

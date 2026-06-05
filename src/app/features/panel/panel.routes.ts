@@ -24,6 +24,11 @@ const PANEL_ROUTES: Routes = [
         title: 'Mis solicitudes',
       },
       {
+        path: 'solicitud/:code',
+        loadComponent: () => import('./pages/ticket-detail/ticket-detail'),
+        title: 'Detalle de solicitud',
+      },
+      {
         path: '**',
         redirectTo: '',
       },

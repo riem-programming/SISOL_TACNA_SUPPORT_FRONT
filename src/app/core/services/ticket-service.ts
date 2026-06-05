@@ -12,6 +12,9 @@ export class TicketService {
   private http = inject(HttpClient);
   private currentUserService = inject(CurrentUserService);
   readonly loading = signal(false);
+  // True once the first load attempt has finished — lets consumers
+  // distinguish "not loaded yet" from "loaded and not found"
+  readonly initialized = signal(false);
   private onDestroy = new Subject<void>();
   private state = signal({ ticket: new Map<number, Ticket>() });
 
@@ -40,14 +43,17 @@ export class TicketService {
           if (response.length === 0) {
             this.state.set({ ticket: new Map() });
             this.loading.set(false);
+            this.initialized.set(true);
             return;
           }
           this.updateList(response);
           this.loading.set(false);
+          this.initialized.set(true);
         },
         error: (_) => {
           this.state.set({ ticket: new Map() });
           this.loading.set(false);
+          this.initialized.set(true);
         },
       });
   }
@@ -60,10 +66,18 @@ export class TicketService {
     return this.state().ticket.get(id);
   }
 
+  // Cache lookup by ticket code. On direct URL entry the session effect
+  // in the constructor triggers loadData(), so callers reading this from
+  // a computed() re-evaluate once the cache fills — no extra request needed.
+  getByCode(code: string): Ticket | undefined {
+    return this.getAll().find((t) => t.code === code);
+  }
+
   private clear() {
     this.onDestroy.next(); // cancel any in-flight request
     this.state.set({ ticket: new Map() });
     this.loading.set(false);
+    this.initialized.set(false);
   }
 
   private updateList(data: Ticket[]) {

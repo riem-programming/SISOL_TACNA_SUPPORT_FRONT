@@ -1,0 +1,98 @@
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 32px;
+}
+
+.step-last {
+  padding-bottom: 0;
+}
+
+/* Vertical connector between markers */
+.step:not(.step-last)::before {
+  content: '';
+  position: absolute;
+  left: 15px; /* marker center (32px / 2) minus half line width */
+  top: 32px;
+  bottom: 0;
+  width: 2px;
+  background: var(--mat-sys-outline-variant);
+}
+
+.step-done:not(.step-last)::before {
+  background: var(--mat-sys-primary);
+}
+
+.step-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+  z-index: 1;
+}
+
+.step-done .step-marker {
+  border-color: var(--mat-sys-primary);
+  background: var(--mat-sys-primary);
+}
+
+.step-check {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-on-primary);
+}
+
+.step-current .step-marker {
+  border-color: var(--mat-sys-primary);
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+}
+
+.step-inner-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--mat-sys-primary);
+}
+
+.step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.step-name {
+  font-size: 1rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.step-done .step-name {
+  color: var(--mat-sys-on-surface);
+}
+
+.step-current .step-name {
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.step-hint {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--mat-sys-primary);
+}

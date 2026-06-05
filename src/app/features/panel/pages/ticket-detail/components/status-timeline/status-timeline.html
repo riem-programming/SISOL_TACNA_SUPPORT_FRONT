@@ -1,0 +1,25 @@
+<ol class="timeline" aria-label="Progreso de la solicitud">
+  @for (step of steps(); track step.code; let last = $last) {
+    <li
+      class="step"
+      [class.step-done]="step.status === 'done'"
+      [class.step-current]="step.status === 'current'"
+      [class.step-last]="last"
+      [attr.aria-current]="step.status === 'current' ? 'step' : null"
+    >
+      <span class="step-marker" aria-hidden="true">
+        @if (step.status === 'done') {
+          <mat-icon class="step-check">check</mat-icon>
+        } @else if (step.status === 'current') {
+          <span class="step-inner-dot"></span>
+        }
+      </span>
+      <div class="step-body">
+        <span class="step-name">{{ step.name }}</span>
+        @if (step.status === 'current') {
+          <span class="step-hint">Estado actual</span>
+        }
+      </div>
+    </li>
+  }
+</ol>

@@ -24,7 +24,9 @@ export default class MyRequest {
   requestTypes = computed(() => this.requestTypeService.getAll().filter((v) => v.is_active));
   priorities = computed(() => this.priorityService.getAll());
   tickets = computed(() => this.ticketService.getAll());
-  loading = this.ticketService.loading;
+  // "Not initialized yet" counts as loading so a cold load never
+  // flashes the empty state before the first fetch starts
+  loading = computed(() => !this.ticketService.initialized() || this.ticketService.loading());
   stateTickets = computed(() => this.stateTicketService.getAll());
 
   // Signals de filtro — null significa "Todos"
@@ -78,7 +80,7 @@ export default class MyRequest {
   }
 
   goToTicket(code: string) {
-    this.router.navigate(['/tickets', code]);
+    this.router.navigate(['/panel', 'solicitud', code]);
   }
 
   getStateBadgeClass(stateCode?: string): string {
