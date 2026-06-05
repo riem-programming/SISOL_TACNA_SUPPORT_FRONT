@@ -51,12 +51,9 @@
               matButton="filled"
             >
               Siguiente
-              <mat-icon
-                iconPositionEnd
-                class="step-nav-icon"
-                aria-hidden="true"
-                fontIcon="arrow_forward"
-              ></mat-icon>
+              <mat-icon iconPositionEnd class="step-nav-icon" aria-hidden="true"
+                >arrow_forward</mat-icon
+              >
             </button>
           </app-stepper-card>
         </mat-step>
@@ -73,7 +70,9 @@
             <app-stepper-card>
               <div class="space-y-2">
                 <h3 class="text-xl font-bold">Modalidad de Soporte</h3>
-                <p class="text-base text-muted-foreground">¿Prefieres soporte virtual o presencial?</p>
+                <p class="text-base text-muted-foreground">
+                  ¿Prefieres soporte virtual o presencial?
+                </p>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 @for (item of supportModes(); track item.id) {
@@ -96,11 +95,7 @@
                   matButton="outlined"
                 >
                   Atrás
-                  <mat-icon
-                    class="step-nav-icon"
-                    aria-hidden="true"
-                    fontIcon="arrow_back"
-                  ></mat-icon>
+                  <mat-icon class="step-nav-icon" aria-hidden="true">arrow_back</mat-icon>
                 </button>
                 <button
                   (click)="navegateNext('supportMode')"
@@ -110,12 +105,9 @@
                   matButton="filled"
                 >
                   Siguiente
-                  <mat-icon
-                    iconPositionEnd
-                    class="step-nav-icon"
-                    aria-hidden="true"
-                    fontIcon="arrow_forward"
-                  ></mat-icon>
+                  <mat-icon iconPositionEnd class="step-nav-icon" aria-hidden="true"
+                    >arrow_forward</mat-icon
+                  >
                 </button>
               </div>
             </app-stepper-card>
@@ -151,11 +143,7 @@
                 matButton="outlined"
               >
                 Atrás
-                <mat-icon
-                  class="step-nav-icon"
-                  aria-hidden="true"
-                  fontIcon="arrow_back"
-                ></mat-icon>
+                <mat-icon class="step-nav-icon" aria-hidden="true">arrow_back</mat-icon>
               </button>
               <button
                 (click)="navegateNext('priority')"
@@ -165,12 +153,9 @@
                 matButton="filled"
               >
                 Siguiente
-                <mat-icon
-                  iconPositionEnd
-                  class="step-nav-icon"
-                  aria-hidden="true"
-                  fontIcon="arrow_forward"
-                ></mat-icon>
+                <mat-icon iconPositionEnd class="step-nav-icon" aria-hidden="true"
+                  >arrow_forward</mat-icon
+                >
               </button>
             </div>
           </app-stepper-card>
@@ -511,9 +496,7 @@
                           (click)="removeFile()"
                           aria-label="Eliminar archivo"
                         >
-                          <mat-icon
-                            class="text-base!"
-                            [style.color]="'var(--mat-sys-error)'"
+                          <mat-icon class="text-base!" [style.color]="'var(--mat-sys-error)'"
                             >close</mat-icon
                           >
                           <span [style.color]="'var(--mat-sys-error)'">Eliminar</span>
@@ -606,7 +589,9 @@
 
                 <p class="text-muted-foreground">Seguro olvidé pagar el servidor 😭</p>
 
-                <div class="mx-auto h-2 w-64 overflow-hidden rounded-full bg-surface-container-high">
+                <div
+                  class="mx-auto h-2 w-64 overflow-hidden rounded-full bg-surface-container-high"
+                >
                   <div class="h-full w-1/3 animate-[loading_2s_linear_infinite] bg-error"></div>
                 </div>
               </div>
@@ -659,11 +644,7 @@
                 matButton="outlined"
               >
                 Atrás
-                <mat-icon
-                  class="step-nav-icon"
-                  aria-hidden="true"
-                  fontIcon="arrow_back"
-                ></mat-icon>
+                <mat-icon class="step-nav-icon" aria-hidden="true">arrow_back</mat-icon>
               </button>
               <button
                 (click)="submit()"

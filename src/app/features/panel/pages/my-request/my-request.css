@@ -212,3 +212,26 @@
   height: 56px;
   opacity: 0.4;
 }
+
+/* Placeholder para @defer (on viewport) — replica el espacio de .ticket-row */
+.ticket-row-placeholder {
+  /* Padding idéntico al de .ticket-row */
+  padding: 14px 1rem;
+  /* Avatar (48px) + padding vertical (14px × 2) + líneas de texto internas (~34px) */
+  min-height: 110px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ticket-row-placeholder + .ticket-row-placeholder,
+.ticket-row + .ticket-row-placeholder,
+.ticket-row-placeholder + .ticket-row {
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+@media (min-width: 640px) {
+  .ticket-row-placeholder {
+    padding: 16px 18px;
+    min-height: 114px;
+  }
+}

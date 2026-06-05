@@ -99,45 +99,47 @@
       <!-- LISTA estilo conversación -->
       <div class="ticket-list pb-8">
         @for (ticket of filteredTickets(); track ticket.id) {
-          <button type="button" class="ticket-row" (click)="goToTicket(ticket.code)">
-            <span class="row-avatar" aria-hidden="true">
-              {{ getRequestType(ticket.request_type_id)?.emoji }}
-            </span>
-            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-              <div class="flex items-baseline justify-between gap-2">
-                <span class="truncate text-base font-semibold">
-                  {{ getRequestType(ticket.request_type_id)?.short_name }}
-                </span>
-                <span class="shrink-0 text-sm text-muted-foreground">
-                  {{ formatTicketDate(ticket.createdAt) }}
-                </span>
-              </div>
-              <span class="font-mono text-sm text-muted-foreground">{{ ticket.code }}</span>
-              <div class="mt-1 flex items-center gap-3">
-                <span
-                  [className]="
-                    'state-text ' + getStateBadgeClass(getTicketState(ticket.state_id)?.code)
-                  "
-                >
-                  {{ getTicketState(ticket.state_id)?.name }}
-                </span>
-                <span class="priority-label">
+          @defer (on viewport) {
+            <button type="button" class="ticket-row" (click)="goToTicket(ticket.code)">
+              <span class="row-avatar" aria-hidden="true">
+                {{ getRequestType(ticket.request_type_id)?.emoji }}
+              </span>
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <div class="flex items-baseline justify-between gap-2">
+                  <span class="truncate text-base font-semibold">
+                    {{ getRequestType(ticket.request_type_id)?.short_name }}
+                  </span>
+                  <span class="shrink-0 text-sm text-muted-foreground">
+                    {{ formatTicketDate(ticket.createdAt) }}
+                  </span>
+                </div>
+                <span class="font-mono text-sm text-muted-foreground">{{ ticket.code }}</span>
+                <div class="mt-1 flex items-center gap-3">
                   <span
                     [className]="
-                      'priority-dot ' + getPriorityDotClass(getPriority(ticket.priority_id)?.code)
+                      'state-text ' + getStateBadgeClass(getTicketState(ticket.state_id)?.code)
                     "
                   >
+                    {{ getTicketState(ticket.state_id)?.name }}
                   </span>
-                  {{ getPriority(ticket.priority_id)?.short_name }}
-                </span>
+                  <span class="priority-label">
+                    <span
+                      [className]="
+                        'priority-dot ' + getPriorityDotClass(getPriority(ticket.priority_id)?.code)
+                      "
+                    >
+                    </span>
+                    {{ getPriority(ticket.priority_id)?.short_name }}
+                  </span>
+                </div>
               </div>
-            </div>
-            <mat-icon class="row-chevron" aria-hidden="true">chevron_right</mat-icon>
-          </button>
+              <mat-icon class="row-chevron" aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          } @placeholder (minimum 100ms) {
+            <div class="ticket-row-placeholder"></div>
+          }
         } @empty {
-          <div
-            class="flex flex-col items-center gap-3 py-14 text-center text-muted-foreground"
-          >
+          <div class="flex flex-col items-center gap-3 py-14 text-center text-muted-foreground">
             <mat-icon class="empty-icon" aria-hidden="true">inbox</mat-icon>
             <p class="text-base font-medium">Sin solicitudes con estos filtros</p>
             <p class="text-sm">Prueba cambiando los filtros o crea una nueva solicitud</p>

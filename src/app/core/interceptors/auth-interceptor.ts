@@ -51,6 +51,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         router.navigate(['']).finally(() => (handlingExpiredSession = false));
         snackBar.open('Tu sesión expiró. Vuelve a iniciar sesión.', 'Cerrar', {
           duration: 6000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
         });
       }
       return throwError(() => error);
