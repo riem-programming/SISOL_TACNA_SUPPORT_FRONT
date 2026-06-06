@@ -1,16 +1,14 @@
 import { Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { StateTicket } from '../../../../../../core/models/stateTicket.model';
+import { HistoryTicketState } from '../../../../../../core/models/historyTicketState.model';
 
-// Canonical ticket lifecycle order; catalog states are sorted against this
-const STATE_FLOW = ['pending', 'open', 'review', 'closed'];
-
-type StepStatus = 'done' | 'current' | 'upcoming';
+type StepStatus = 'done' | 'current' | 'terminal';
 
 interface TimelineStep {
   code: string;
   name: string;
   status: StepStatus;
+  date: Date;
 }
 
 @Component({
@@ -20,27 +18,31 @@ interface TimelineStep {
   styleUrl: './status-timeline.css',
 })
 export class StatusTimeline {
-  states = input.required<StateTicket[]>();
-  currentStateId = input.required<number>();
+  history = input.required<HistoryTicketState[]>();
 
   steps = computed<TimelineStep[]>(() => {
-    const catalog = this.states();
-    const ordered = STATE_FLOW.map((code) => catalog.find((s) => s.code === code)).filter(
-      (s): s is StateTicket => s !== undefined,
-    );
-    const currentIndex = ordered.findIndex((s) => s.id === this.currentStateId());
+    const history = this.history();
+    if (!history.length) return [];
 
-    return ordered.map((s, i) => ({
-      code: s.code,
-      name: s.name,
-      status:
-        currentIndex === -1
-          ? 'upcoming'
-          : i < currentIndex
-            ? 'done'
-            : i === currentIndex
-              ? 'current'
-              : 'upcoming',
-    }));
+    // Garantiza orden cronológico tal cual ocurrieron
+    const sorted = [...history].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+
+    return sorted.map((entry, i) => {
+      const isLast = i === sorted.length - 1;
+      const status: StepStatus = !isLast
+        ? 'done'
+        : entry.state.is_terminal
+          ? 'terminal'
+          : 'current';
+
+      return {
+        code: entry.state.code,
+        name: entry.state.name,
+        status,
+        date: entry.createdAt,
+      };
+    });
   });
 }

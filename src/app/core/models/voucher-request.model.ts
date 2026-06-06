@@ -13,3 +13,8 @@ export interface VoucherRequest {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface VoucherRequestChildren extends Omit<
+  VoucherRequest,
+  'ticket' | 'voucher_action_type'
+> {}

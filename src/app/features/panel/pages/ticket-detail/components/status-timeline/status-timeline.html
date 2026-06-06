@@ -1,9 +1,12 @@
 <ol class="timeline" aria-label="Progreso de la solicitud">
-  @for (step of steps(); track step.code; let last = $last) {
+  @for (step of steps(); track $index; let last = $last) {
     <li
       class="step"
       [class.step-done]="step.status === 'done'"
       [class.step-current]="step.status === 'current'"
+      [class.step-terminal]="step.status === 'terminal'"
+      [class.step-terminal-error]="step.status === 'terminal' && step.code === 'error'"
+      [class.step-terminal-cancelled]="step.status === 'terminal' && step.code === 'cancelled'"
       [class.step-last]="last"
       [attr.aria-current]="step.status === 'current' ? 'step' : null"
     >
@@ -12,12 +15,22 @@
           <mat-icon class="step-check">check</mat-icon>
         } @else if (step.status === 'current') {
           <span class="step-inner-dot"></span>
+        } @else if (step.status === 'terminal') {
+          @if (step.code === 'error') {
+            <mat-icon class="step-icon-error">error_outline</mat-icon>
+          } @else {
+            <mat-icon class="step-icon-cancelled">cancel</mat-icon>
+          }
         }
       </span>
       <div class="step-body">
         <span class="step-name">{{ step.name }}</span>
         @if (step.status === 'current') {
           <span class="step-hint">Estado actual</span>
+        } @else if (step.status === 'terminal') {
+          <span class="step-hint">
+            {{ step.code === 'error' ? 'Requiere atención' : 'Ticket cerrado' }}
+          </span>
         }
       </div>
     </li>

@@ -20,3 +20,8 @@ export interface CreateUserRequest {
   createdAt: Date;
   updateddAt: Date;
 }
+
+export interface CreateUserRequestChildren extends Omit<
+  CreateUserRequest,
+  'document_type' | 'contract_type' | 'system_roles'
+> {}

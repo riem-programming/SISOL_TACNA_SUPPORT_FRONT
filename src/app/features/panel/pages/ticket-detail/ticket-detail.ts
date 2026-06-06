@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TicketService } from '../../../../core/services/ticket-service';
@@ -6,6 +6,8 @@ import { StateTicketService } from '../../../../core/services/state-ticket-servi
 import { RequestTypeService } from '../../../../core/services/request-type-service';
 import { PriorityService } from '../../../../core/services/priority-service';
 import { StatusTimeline } from './components/status-timeline/status-timeline';
+import { HistoryTicketStateService } from '../../../../core/services/history-ticket-state-service';
+import { HistoryTicketState } from '../../../../core/models/historyTicketState.model';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -18,13 +20,10 @@ export default class TicketDetail {
   private stateTicketService = inject(StateTicketService);
   private requestTypeService = inject(RequestTypeService);
   private priorityService = inject(PriorityService);
+  private historyService = inject(HistoryTicketStateService);
 
-  // Route param bound via withComponentInputBinding()
   code = input.required<string>();
 
-  // Combined loading: the page resolves names from three catalogs that load
-  // independently of the ticket cache. Treat "tickets not initialized yet"
-  // as loading too, so direct URL entry never flashes the not-found state.
   loading = computed(
     () =>
       !this.ticketService.initialized() ||
@@ -33,10 +32,8 @@ export default class TicketDetail {
       this.requestTypeService.loading() ||
       this.priorityService.loading(),
   );
-  states = computed(() => this.stateTicketService.getAll());
 
-  // Reads from the session cache; re-evaluates when loadData() fills it
-  // on direct URL entry, so no individual request is needed.
+  states = computed(() => this.stateTicketService.getAll());
   ticket = computed(() => this.ticketService.getByCode(this.code()));
 
   requestType = computed(() => {
@@ -53,6 +50,35 @@ export default class TicketDetail {
     const t = this.ticket();
     return t ? this.stateTicketService.getById(t.state_id) : undefined;
   });
+
+  ticketHistory = signal<HistoryTicketState[]>([]);
+
+  constructor() {
+    // Carga el historial inicial cuando el ticket esté disponible
+    effect(() => {
+      const ticketId = this.ticket()?.id;
+      if (!ticketId) return;
+      this.cargarHistorial(ticketId);
+    });
+
+    // Recarga el historial cuando llegue un SSE de este ticket
+    effect(() => {
+      const notifs = this.ticketService.pendingNotifications();
+      const ticketId = this.ticket()?.id;
+      if (!ticketId || !notifs.length) return;
+
+      const isThisTicket = notifs.some((n) => n.ticket_id === ticketId);
+      if (isThisTicket) {
+        this.cargarHistorial(ticketId);
+      }
+    });
+  }
+
+  private cargarHistorial(ticketId: number): void {
+    this.historyService.getByTicketId(ticketId).subscribe({
+      next: (history) => this.ticketHistory.set(history),
+    });
+  }
 
   getStateBadgeClass(stateCode?: string): string {
     const map: Record<string, string> = {

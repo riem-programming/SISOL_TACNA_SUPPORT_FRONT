@@ -1,3 +1,7 @@
+import { CreateUserRequestChildren } from './createUserRequest.model';
+import { TechnicalSupportRequestChildren } from './technical-support-request';
+import { VoucherRequestChildren } from './voucher-request.model';
+
 export interface Ticket {
   id: number;
   code: string;
@@ -8,4 +12,12 @@ export interface Ticket {
   is_active: boolean;
   createdAt: Date;
   updateddAt: Date;
+  technicalSupportRequest?: TechnicalSupportRequestChildren;
+  voucherRequest?: VoucherRequestChildren;
+  createUserRequest?: CreateUserRequestChildren;
+}
+
+export interface TicketStateEvent {
+  ticket_id: number;
+  state_id: number;
 }

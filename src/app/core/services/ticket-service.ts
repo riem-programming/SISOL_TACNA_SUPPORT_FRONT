@@ -1,8 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { first, Subject, takeUntil } from 'rxjs';
 import { Ticket } from '../models/ticket.model';
 import { CurrentUserService } from './current-user-service';
+import { platformBrowser } from '@angular/platform-browser';
+import { isPlatformBrowser } from '@angular/common';
+
+export interface TicketStateEvent {
+  ticket_id: number;
+  state_id: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -11,20 +18,22 @@ export class TicketService {
   private readonly baseUrl = 'http://localhost:3000/ticket';
   private http = inject(HttpClient);
   private currentUserService = inject(CurrentUserService);
+
   readonly loading = signal(false);
-  // True once the first load attempt has finished — lets consumers
-  // distinguish "not loaded yet" from "loaded and not found"
   readonly initialized = signal(false);
-  // True when the last load failed — lets lists show an explicit
-  // error + retry instead of an ambiguous empty state
   readonly error = signal(false);
+
+  // Notificaciones para mostrar badge/toast en el UI
+  readonly pendingNotifications = signal<TicketStateEvent[]>([]);
+
   private onDestroy = new Subject<void>();
   private state = signal({ ticket: new Map<number, Ticket>() });
+  private platformId = inject(PLATFORM_ID);
+
+  // Referencia al EventSource activo para poder cerrarlo
+  private eventSource: EventSource | null = null;
 
   constructor() {
-    // Cache lifecycle is bound to the session: each login loads the
-    // current user's tickets, logout clears them. This prevents one
-    // user's cached tickets from leaking into another user's session.
     effect(() => {
       const user = this.currentUserService.user();
       if (user === null) {
@@ -32,8 +41,62 @@ export class TicketService {
         return;
       }
       this.loadData();
+      this.conectarSSE(user.id); // abre la conexión SSE al iniciar sesión
     });
   }
+
+  // ─── SSE ────────────────────────────────────────────────────
+
+  private conectarSSE(userId: number): void {
+    // Cierra conexión anterior si existía (ej: cambio de usuario)
+    this.desconectarSSE();
+
+    let token = undefined;
+    if (isPlatformBrowser(this.platformId)) {
+      token = localStorage.getItem('access_token'); // mismo key que el interceptor
+    }
+    if (!token) return; // no hay sesión activa
+
+    const url = `${this.baseUrl}/events?userId=${userId}&token=${token}`;
+    this.eventSource = new EventSource(url);
+
+    this.eventSource.onmessage = (event) => {
+      const data: TicketStateEvent = JSON.parse(event.data);
+      this.manejarEventoEstado(data);
+    };
+
+    this.eventSource.onerror = () => {
+      // EventSource reconecta automáticamente — no hacemos nada aquí.
+      // Si quisieras mostrar un indicador de "sin conexión", este es el lugar.
+    };
+  }
+
+  private desconectarSSE(): void {
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+  }
+
+  private manejarEventoEstado(data: TicketStateEvent): void {
+    // 1. Actualiza el ticket en el caché local
+    const ticket = this.state().ticket.get(data.ticket_id);
+    if (ticket) {
+      const nuevoMapa = new Map(this.state().ticket);
+      nuevoMapa.set(data.ticket_id, { ...ticket, state_id: data.state_id });
+      this.state.set({ ticket: nuevoMapa });
+    }
+
+    // 2. Agrega la notificación pendiente (para badge/toast)
+    this.pendingNotifications.update((prev) => [...prev, data]);
+  }
+
+  // Llama esto cuando el usuario "vio" las notificaciones
+  clearNotifications(): void {
+    this.pendingNotifications.set([]);
+  }
+
+  // ─── Carga de datos ─────────────────────────────────────────
 
   loadData() {
     this.onDestroy.next();
@@ -44,17 +107,11 @@ export class TicketService {
       .pipe(takeUntil(this.onDestroy), first())
       .subscribe({
         next: (response: Ticket[]) => {
-          if (response.length === 0) {
-            this.state.set({ ticket: new Map() });
-            this.loading.set(false);
-            this.initialized.set(true);
-            return;
-          }
-          this.updateList(response);
+          this.updateList(response.length ? response : []);
           this.loading.set(false);
           this.initialized.set(true);
         },
-        error: (_) => {
+        error: () => {
           this.state.set({ ticket: new Map() });
           this.loading.set(false);
           this.initialized.set(true);
@@ -71,16 +128,17 @@ export class TicketService {
     return this.state().ticket.get(id);
   }
 
-  // Cache lookup by ticket code. On direct URL entry the session effect
-  // in the constructor triggers loadData(), so callers reading this from
-  // a computed() re-evaluate once the cache fills — no extra request needed.
   getByCode(code: string): Ticket | undefined {
     return this.getAll().find((t) => t.code === code);
   }
 
+  // ─── Limpieza ───────────────────────────────────────────────
+
   private clear() {
-    this.onDestroy.next(); // cancel any in-flight request
+    this.onDestroy.next();
+    this.desconectarSSE(); // cierra la conexión SSE al cerrar sesión
     this.state.set({ ticket: new Map() });
+    this.pendingNotifications.set([]);
     this.loading.set(false);
     this.initialized.set(false);
     this.error.set(false);

@@ -17,3 +17,8 @@ export interface TechnicalSupportRequest {
   createdAt: Date;
   updateddAt: Date;
 }
+
+export interface TechnicalSupportRequestChildren extends Omit<
+  TechnicalSupportRequest,
+  'supportMode' | 'ticket'
+> {}
