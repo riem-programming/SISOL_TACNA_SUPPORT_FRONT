@@ -8,6 +8,7 @@ import { PriorityService } from '../../../../core/services/priority-service';
 import { StatusTimeline } from './components/status-timeline/status-timeline';
 import { HistoryTicketStateService } from '../../../../core/services/history-ticket-state-service';
 import { HistoryTicketState } from '../../../../core/models/historyTicketState.model';
+import { TicketAttachmentService } from '../../../../core/services/ticket-attachment';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -21,6 +22,10 @@ export default class TicketDetail {
   private requestTypeService = inject(RequestTypeService);
   private priorityService = inject(PriorityService);
   private historyService = inject(HistoryTicketStateService);
+  private attachmentService = inject(TicketAttachmentService);
+
+  attachmentUrl = this.attachmentService.attachmentUrl;
+  attachmentLoading = this.attachmentService.loading;
 
   code = input.required<string>();
 
@@ -71,6 +76,16 @@ export default class TicketDetail {
       if (isThisTicket) {
         this.cargarHistorial(ticketId);
       }
+    });
+
+    // GESTIONAR LA URL DE ARCHIVO
+    effect(() => {
+      const voucherRequest = this.ticket()?.voucherRequest;
+      if (!voucherRequest?.id) {
+        this.attachmentService.attachmentUrl.set(null);
+        return;
+      }
+      this.attachmentService.loadAttachment(voucherRequest.id);
     });
   }
 

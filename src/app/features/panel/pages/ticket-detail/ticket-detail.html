@@ -78,6 +78,30 @@
               <dt>Última actualización</dt>
               <dd>{{ formatFullDate(t.updateddAt) }}</dd>
             </div>
+
+            <!-- Adjunto del voucher (solo si existe voucherRequest) -->
+            @if (ticket()?.voucherRequest) {
+              <div class="data-row">
+                <dt>Archivo adjunto</dt>
+                <dd>
+                  @if (attachmentLoading()) {
+                    <span class="attachment-loading">Cargando enlace...</span>
+                  } @else if (attachmentUrl()) {
+                    <a
+                      [href]="attachmentUrl()!"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="attachment-link"
+                    >
+                      <mat-icon>attach_file</mat-icon>
+                      Ver adjunto
+                    </a>
+                  } @else {
+                    <span class="attachment-empty">Sin adjunto disponible</span>
+                  }
+                </dd>
+              </div>
+            }
           </dl>
         </section>
 

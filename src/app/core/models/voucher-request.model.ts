@@ -10,6 +10,7 @@ export interface VoucherRequest {
   voucher_code: string;
   speciality: string;
   motive: null;
+  attachment_key: string;
   createdAt: Date;
   updatedAt: Date;
 }

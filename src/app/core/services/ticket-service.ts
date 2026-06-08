@@ -5,6 +5,7 @@ import { Ticket } from '../models/ticket.model';
 import { CurrentUserService } from './current-user-service';
 import { platformBrowser } from '@angular/platform-browser';
 import { isPlatformBrowser } from '@angular/common';
+import { WebNotificationService } from './web-notification-service';
 
 export interface TicketStateEvent {
   ticket_id: number;
@@ -32,6 +33,8 @@ export class TicketService {
 
   // Referencia al EventSource activo para poder cerrarlo
   private eventSource: EventSource | null = null;
+
+  private webNotif = inject(WebNotificationService);
 
   constructor() {
     effect(() => {
@@ -79,7 +82,7 @@ export class TicketService {
   }
 
   private manejarEventoEstado(data: TicketStateEvent): void {
-    // 1. Actualiza el ticket en el caché local
+    // 1. Actualiza el caché local (igual que antes)
     const ticket = this.state().ticket.get(data.ticket_id);
     if (ticket) {
       const nuevoMapa = new Map(this.state().ticket);
@@ -87,8 +90,16 @@ export class TicketService {
       this.state.set({ ticket: nuevoMapa });
     }
 
-    // 2. Agrega la notificación pendiente (para badge/toast)
+    // 2. Agrega notificación pendiente para badge/toast (igual que antes)
     this.pendingNotifications.update((prev) => [...prev, data]);
+
+    // 3. Notificación del sistema operativo + sonido
+    const nombre = ticket?.code ?? `#${data.ticket_id}`;
+    this.webNotif.notify(
+      'Actualización de solicitud',
+      `Tu ticket ${nombre} cambió de estado`,
+      `/panel/solicitud/${ticket?.code}`,
+    );
   }
 
   // Llama esto cuando el usuario "vio" las notificaciones
