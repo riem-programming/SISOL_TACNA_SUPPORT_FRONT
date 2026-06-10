@@ -49,7 +49,10 @@ export class TicketDetailModal implements OnInit {
 
   ngOnInit(): void {
     this.adminService.getAdminComments(this.ticket.id).subscribe({
-      next: (comments) => this.comments.set(comments),
+      next: (comments) => {
+        this.comments.set(comments);
+        this.adminService.markAdminRead(this.ticket.id).subscribe();
+      },
     });
   }
 

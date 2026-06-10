@@ -10,17 +10,30 @@
     }
 
     @for (comment of comments; track comment.id) {
-      <div class="comment-bubble-row" [class.own]="isOwn(comment)">
-        <div class="comment-bubble" [class.own]="isOwn(comment)">
-          @if (!isOwn(comment)) {
-            <span class="comment-author">
-              {{ comment.author_type === 'admin' ? 'Support' : (comment.user?.username ?? 'User') }}
-            </span>
-          }
-          <p class="comment-message">{{ comment.message }}</p>
-          <span class="comment-time">{{ formatTime(comment.created_at) }}</span>
+      @if (comment.author_type === 'system') {
+        <div class="system-message-row">
+          <span class="system-message">{{ comment.message }}</span>
         </div>
-      </div>
+      } @else {
+        <div class="comment-bubble-row" [class.own]="isOwn(comment)">
+          <div class="comment-bubble" [class.own]="isOwn(comment)">
+            @if (!isOwn(comment)) {
+              <span class="comment-author">
+                {{ comment.author_type === 'admin' ? 'Support' : (comment.user?.username ?? 'User') }}
+              </span>
+            }
+            <p class="comment-message">{{ comment.message }}</p>
+            <div class="comment-footer">
+              <span class="comment-time">{{ formatTime(comment.created_at) }}</span>
+              @if (isOwn(comment) && comment.read_at) {
+                <span class="read-receipt" title="Visto">
+                  <mat-icon class="read-icon">done_all</mat-icon>
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      }
     }
 
     <div #scrollAnchor aria-hidden="true"></div>

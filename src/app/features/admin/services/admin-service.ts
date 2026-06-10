@@ -56,4 +56,12 @@ export class AdminService {
       { headers: this.adminHeaders() },
     );
   }
+
+  markAdminRead(ticketId: number) {
+    return this.http.patch(
+      `${this.baseUrl}/ticket-comment/admin/${ticketId}/read`,
+      {},
+      { headers: this.adminHeaders() },
+    );
+  }
 }
