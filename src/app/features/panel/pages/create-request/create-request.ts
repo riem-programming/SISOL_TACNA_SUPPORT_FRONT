@@ -36,33 +36,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
 import { VoiceInput } from '../../../../core/directives/voice-input-directive';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-
-@Component({
-  selector: 'app-ticket-confirmed-dialog',
-  standalone: true,
-  imports: [MatButtonModule, MatDialogModule, MatIconModule],
-  template: `
-    <h2 mat-dialog-title style="display:flex;align-items:center;gap:8px;margin:0">
-      <mat-icon style="color:var(--mat-sys-primary)">check_circle</mat-icon>
-      Solicitud recibida
-    </h2>
-    <mat-dialog-content style="padding-top:16px">
-      <p style="margin:0 0 8px">Tu solicitud <strong>{{ data.code }}</strong> fue enviada correctamente.</p>
-      <p style="margin:0;color:var(--mat-sys-on-surface-variant);font-size:0.9rem">Te responderemos en las próximas 24 horas.</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      @if (data.keepCreating) {
-        <button matButton (click)="ref.close('new')">Crear otra</button>
-      }
-      <button matButton="filled" (click)="ref.close('view')">Ver solicitud</button>
-    </mat-dialog-actions>
-  `,
-})
-export class TicketConfirmedDialog {
-  data = inject<{ code: string; keepCreating: boolean }>(MAT_DIALOG_DATA);
-  ref = inject(MatDialogRef<TicketConfirmedDialog>);
-}
 
 @Component({
   selector: 'app-create-request',
@@ -103,7 +76,6 @@ export default class CreateRequest implements OnInit, OnDestroy {
   private createRequestService = inject(CreateRequestService);
   private ticketService = inject(TicketService);
   private router = inject(Router);
-  private dialog = inject(MatDialog);
 
   isLoading = computed(() => this.createRequestService.loading());
 
@@ -417,18 +389,6 @@ export default class CreateRequest implements OnInit, OnDestroy {
     });
   }
 
-  private openConfirmationDialog(code: string, keepCreating: boolean, onNew: () => void): void {
-    const ref = this.dialog.open(TicketConfirmedDialog, {
-      width: '360px',
-      data: { code, keepCreating },
-      disableClose: true,
-    });
-    ref.afterClosed().subscribe((action: 'view' | 'new') => {
-      if (action === 'new') { onNew(); return; }
-      this.router.navigate(['panel', 'solicitud', code]);
-    });
-  }
-
   submit() {
     submit(this.formCreate, async () => {
       const data = this.formCreateModel();
@@ -444,8 +404,10 @@ export default class CreateRequest implements OnInit, OnDestroy {
             this.openSnackBar(result.error.message, 'Cerrar');
             return;
           }
+          this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
           this.ticketService.loadData();
-          this.openConfirmationDialog(result.data!.ticket.code, data.keepCreating, () => this.resetAllStateForm());
+          if (data.keepCreating) { this.resetAllStateForm(); return; }
+          this.router.navigate(['panel', 'mis-solicitudes']);
         });
       } else if (
         codeRequest === 'TICKET_RELEASE_LT30' ||
@@ -458,8 +420,10 @@ export default class CreateRequest implements OnInit, OnDestroy {
             this.openSnackBar(result.error.message, 'Cerrar');
             return;
           }
+          this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
           this.ticketService.loadData();
-          this.openConfirmationDialog(result.data!.ticket.code, data.keepCreating, () => this.resetSpecificStateForm(['ticketNumber', 'attachments']));
+          if (data.keepCreating) { this.resetSpecificStateForm(['ticketNumber', 'attachments']); return; }
+          this.router.navigate(['panel', 'mis-solicitudes']);
         });
       } else if (codeRequest === 'USR_CREATE') {
         this.createRequestService.createCreateUserRequest(data).subscribe((result) => {
@@ -467,10 +431,13 @@ export default class CreateRequest implements OnInit, OnDestroy {
             this.openSnackBar(result.error.message, 'Cerrar');
             return;
           }
+          this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
           this.ticketService.loadData();
-          this.openConfirmationDialog(result.data!.ticket.code, data.keepCreating, () =>
-            this.resetSpecificStateForm(['firstNames', 'lastNames', 'documentId', 'documentNumber', 'position', 'contractId', 'rolIds'])
-          );
+          if (data.keepCreating) {
+            this.resetSpecificStateForm(['firstNames', 'lastNames', 'documentId', 'documentNumber', 'position', 'contractId', 'rolIds']);
+            return;
+          }
+          this.router.navigate(['panel', 'mis-solicitudes']);
         });
       } else {
         this.openSnackBar('Ocurrio un error', 'Cerrar');
