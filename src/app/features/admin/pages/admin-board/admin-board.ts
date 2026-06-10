@@ -77,17 +77,27 @@ export default class AdminBoard implements OnInit {
     );
     this.eventSource.onmessage = (event) => {
       const payload = JSON.parse(event.data);
-      if (payload.type !== 'new_ticket') return;
 
-      const ticket: AdminTicket = payload.ticket;
-      const col = this.columns.find((c) => c.state.id === ticket.state_id);
-      if (!col) return;
+      if (payload.type === 'new_ticket') {
+        const ticket: AdminTicket = payload.ticket;
+        const col = this.columns.find((c) => c.state.id === ticket.state_id);
+        if (!col) return;
+        if (col.tickets.some((t) => t.id === ticket.id)) return;
+        col.tickets.unshift(ticket);
+        this.cdr.detectChanges();
+        return;
+      }
 
-      const alreadyExists = col.tickets.some((t) => t.id === ticket.id);
-      if (alreadyExists) return;
-
-      col.tickets.unshift(ticket);
-      this.cdr.detectChanges();
+      if (payload.type === 'deleted_ticket') {
+        for (const col of this.columns) {
+          const idx = col.tickets.findIndex((t) => t.id === payload.ticket_id);
+          if (idx !== -1) {
+            col.tickets.splice(idx, 1);
+            this.cdr.detectChanges();
+            break;
+          }
+        }
+      }
     };
   }
 
