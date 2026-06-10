@@ -12,6 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorResponse } from '../../core/models/error.model';
 import { isPlatformBrowser } from '@angular/common';
 import { CurrentUserService } from '../../core/services/current-user-service';
+import { PushNotificationService } from '../../core/services/push-notification.service';
 
 @Component({
   selector: 'app-auth',
@@ -79,6 +80,8 @@ export default class Auth {
 
   private currentUserService = inject(CurrentUserService);
 
+  private pushNotificationService = inject(PushNotificationService);
+
   toggleHidePassword(event: MouseEvent) {
     this.hidePassword.update((state) => !state);
     event.stopPropagation();
@@ -108,6 +111,7 @@ export default class Auth {
 
         this.currentUserService.user.set(data.user);
         this.router.navigate(['panel']);
+        this.pushNotificationService.subscribeToNotifications();
         this.formAuth().reset();
         this.formAuthModel.set({
           username: '',
