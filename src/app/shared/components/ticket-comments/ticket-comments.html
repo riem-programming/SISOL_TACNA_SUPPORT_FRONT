@@ -1,0 +1,51 @@
+<section class="comments-section" aria-label="Comments">
+  <h2 class="comments-title">
+    <mat-icon aria-hidden="true">chat</mat-icon>
+    Mensajes
+  </h2>
+
+  <div class="comments-thread" role="log" aria-live="polite" aria-label="Message thread">
+    @if (comments.length === 0) {
+      <p class="comments-empty">Aún no hay mensajes. Iniciá la conversación.</p>
+    }
+
+    @for (comment of comments; track comment.id) {
+      <div class="comment-bubble-row" [class.own]="isOwn(comment)">
+        <div class="comment-bubble" [class.own]="isOwn(comment)">
+          @if (!isOwn(comment)) {
+            <span class="comment-author">
+              {{ comment.author_type === 'admin' ? 'Support' : (comment.user?.username ?? 'User') }}
+            </span>
+          }
+          <p class="comment-message">{{ comment.message }}</p>
+          <span class="comment-time">{{ formatTime(comment.created_at) }}</span>
+        </div>
+      </div>
+    }
+
+    <div #scrollAnchor aria-hidden="true"></div>
+  </div>
+
+  <div class="comments-input-row">
+    <textarea
+      class="comments-input"
+      rows="1"
+      placeholder="Escribí un mensaje..."
+      [value]="messageText()"
+      (input)="messageText.set($any($event.target).value)"
+      (keydown)="handleKeydown($event)"
+      [disabled]="sending"
+      aria-label="Escribí un mensaje"
+    ></textarea>
+    <button
+      matIconButton
+      class="comments-send-btn"
+      type="button"
+      [disabled]="!messageText().trim() || sending"
+      (click)="submit()"
+      aria-label="Send message"
+    >
+      <mat-icon>send</mat-icon>
+    </button>
+  </div>
+</section>

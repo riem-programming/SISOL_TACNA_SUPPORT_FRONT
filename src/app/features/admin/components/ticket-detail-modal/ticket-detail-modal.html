@@ -176,6 +176,15 @@
     </div>
   }
 
+  <!-- Comments -->
+  <mat-divider />
+  <app-ticket-comments
+    [comments]="comments()"
+    [currentAuthorType]="'admin'"
+    [sending]="sendingComment()"
+    (sendMessage)="onSendComment($event)"
+  />
+
   <!-- Datos crudos -->
   <mat-divider />
   <details class="raw-section">

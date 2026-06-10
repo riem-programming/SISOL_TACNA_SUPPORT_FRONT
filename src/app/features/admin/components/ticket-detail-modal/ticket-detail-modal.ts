@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,8 @@ import { AdminTicket } from '../../models/admin-ticket.model';
 import { AdminService } from '../../services/admin-service';
 import { StateTicketService } from '../../../../core/services/state-ticket-service';
 import { StateTicket } from '../../../../core/models/stateTicket.model';
+import { TicketComment } from '../../../../core/models/ticket-comment.model';
+import { TicketComments } from '../../../../shared/components/ticket-comments/ticket-comments';
 
 @Component({
   selector: 'app-ticket-detail-modal',
@@ -19,11 +21,12 @@ import { StateTicket } from '../../../../core/models/stateTicket.model';
     MatIconModule,
     MatProgressSpinnerModule,
     JsonPipe,
+    TicketComments,
   ],
   templateUrl: './ticket-detail-modal.html',
   styleUrl: './ticket-detail-modal.css',
 })
-export class TicketDetailModal {
+export class TicketDetailModal implements OnInit {
   ticket = inject<AdminTicket>(MAT_DIALOG_DATA);
   private dialogRef = inject(MatDialogRef<TicketDetailModal>);
   private adminService = inject(AdminService);
@@ -41,6 +44,14 @@ export class TicketDetailModal {
 
   moving = signal(false);
   attachmentLoading = signal(false);
+  comments = signal<TicketComment[]>([]);
+  sendingComment = signal(false);
+
+  ngOnInit(): void {
+    this.adminService.getAdminComments(this.ticket.id).subscribe({
+      next: (comments) => this.comments.set(comments),
+    });
+  }
 
   formatFullDate(value: Date): string {
     return new Date(value).toLocaleDateString('es-PE', {
@@ -81,6 +92,17 @@ export class TicketDetailModal {
         this.attachmentLoading.set(false);
       },
       error: () => this.attachmentLoading.set(false),
+    });
+  }
+
+  onSendComment(message: string): void {
+    this.sendingComment.set(true);
+    this.adminService.sendAdminComment(this.ticket.id, message).subscribe({
+      next: (comment) => {
+        this.comments.update((prev) => [...prev, comment]);
+        this.sendingComment.set(false);
+      },
+      error: () => this.sendingComment.set(false),
     });
   }
 }

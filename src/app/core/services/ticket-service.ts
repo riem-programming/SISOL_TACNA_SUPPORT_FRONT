@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { first, Observable, Subject, takeUntil } from 'rxjs';
 import { Ticket } from '../models/ticket.model';
+import { TicketComment } from '../models/ticket-comment.model';
 import { CurrentUserService } from './current-user-service';
 import { platformBrowser } from '@angular/platform-browser';
 import { isPlatformBrowser } from '@angular/common';
@@ -26,6 +27,9 @@ export class TicketService {
 
   // Notificaciones para mostrar badge/toast en el UI
   readonly pendingNotifications = signal<TicketStateEvent[]>([]);
+
+  // Incoming real-time comments pushed via SSE
+  readonly pendingComments = signal<TicketComment[]>([]);
 
   private onDestroy = new Subject<void>();
   private state = signal({ ticket: new Map<number, Ticket>() });
@@ -64,8 +68,12 @@ export class TicketService {
     this.eventSource = new EventSource(url);
 
     this.eventSource.onmessage = (event) => {
-      const data: TicketStateEvent = JSON.parse(event.data);
-      this.manejarEventoEstado(data);
+      const data = JSON.parse(event.data);
+      if (data.type === 'new_comment') {
+        this.pendingComments.update((prev) => [...prev, data.comment as TicketComment]);
+        return;
+      }
+      this.manejarEventoEstado(data as TicketStateEvent);
     };
 
     this.eventSource.onerror = () => {
@@ -150,6 +158,7 @@ export class TicketService {
     this.desconectarSSE(); // cierra la conexión SSE al cerrar sesión
     this.state.set({ ticket: new Map() });
     this.pendingNotifications.set([]);
+    this.pendingComments.set([]);
     this.loading.set(false);
     this.initialized.set(false);
     this.error.set(false);
@@ -169,5 +178,16 @@ export class TicketService {
 
   deleteTicket(id: number): Observable<Ticket> {
     return this.http.delete<Ticket>(`${this.baseUrl}/${id}`);
+  }
+
+  getComments(ticketId: number): Observable<TicketComment[]> {
+    return this.http.get<TicketComment[]>(`http://localhost:3000/ticket-comment/${ticketId}`);
+  }
+
+  sendComment(ticketId: number, message: string): Observable<TicketComment> {
+    return this.http.post<TicketComment>('http://localhost:3000/ticket-comment', {
+      ticket_id: ticketId,
+      message,
+    });
   }
 }

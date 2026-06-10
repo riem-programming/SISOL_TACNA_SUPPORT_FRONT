@@ -105,6 +105,16 @@
           </dl>
         </section>
 
+        <!-- COMMENTS -->
+        <section class="detail-card" aria-labelledby="comments-title">
+          <app-ticket-comments
+            [comments]="comments()"
+            [currentAuthorType]="'user'"
+            [sending]="sendingComment()"
+            (sendMessage)="onSendComment($event)"
+          />
+        </section>
+
         <!-- ACCIONES -->
         @if (canEdit()) {
           <div class="action-buttons">
