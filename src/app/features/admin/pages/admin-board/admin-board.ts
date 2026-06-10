@@ -1,4 +1,14 @@
-import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import {
   CdkDragDrop,
@@ -49,6 +59,8 @@ export default class AdminBoard implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
+  @ViewChild('searchInputRef') private searchInputRef?: ElementRef<HTMLInputElement>;
+
   private readonly statesReady$ = toObservable(this.stateService.loading).pipe(
     filter((loading) => !loading),
     first(),
@@ -57,11 +69,56 @@ export default class AdminBoard implements OnInit {
   loading = signal(true);
   error = signal(false);
   cleaning = signal<string | null>(null);
+  searchOpen = signal(false);
+  searchQuery = signal('');
+  searchInput = signal('');
   columns: Column[] = [];
   private eventSource: EventSource | null = null;
 
+  get filteredColumns(): Column[] {
+    const q = this.searchQuery().trim();
+    if (!q) return this.columns;
+    const id = Number(q);
+    if (isNaN(id)) return this.columns;
+    return this.columns.map((col) => ({
+      ...col,
+      tickets: col.tickets.filter((t) => t.id === id),
+    }));
+  }
+
   get columnIds(): string[] {
     return this.columns.map((c) => `col-${c.state.id}`);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if (event.ctrlKey && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      if (!this.searchOpen()) this.openSearch();
+    }
+    if (event.key === 'Escape' && this.searchOpen()) {
+      this.closeSearch();
+    }
+  }
+
+  openSearch(): void {
+    this.searchInput.set(this.searchQuery());
+    this.searchOpen.set(true);
+    setTimeout(() => this.searchInputRef?.nativeElement.focus(), 0);
+  }
+
+  closeSearch(): void {
+    this.searchOpen.set(false);
+  }
+
+  applySearch(): void {
+    this.searchQuery.set(this.searchInput().trim());
+    this.searchOpen.set(false);
+  }
+
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.searchInput.set('');
   }
 
   ngOnInit() {

@@ -278,6 +278,123 @@
 .clean-item--error mat-icon { color: var(--state-error-border); }
 .clean-item--cancelled mat-icon { color: var(--state-cancelled-border); }
 
+/* Filter chip */
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 35%, transparent);
+  border-radius: 999px;
+  padding: 0 0.25rem 0 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--mat-sys-primary);
+  white-space: nowrap;
+}
+
+.filter-chip-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.filter-chip-close {
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  color: var(--mat-sys-primary);
+}
+
+.filter-chip-close mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Search overlay */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 600;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.search-box {
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  width: min(480px, calc(100vw - 2rem));
+  padding: 1rem 1.25rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.search-box-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-icon-prefix {
+  color: var(--mat-sys-on-surface-variant);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1.1rem;
+  color: var(--mat-sys-on-surface);
+  padding: 0.25rem 0;
+  min-width: 0;
+}
+
+.search-input::placeholder {
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.6;
+}
+
+.search-input::-webkit-outer-spin-button,
+.search-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.search-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.search-clear-btn {
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  flex-shrink: 0;
+}
+
+.search-clear-btn mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.search-hint {
+  font-size: 0.72rem;
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.6;
+  padding-left: 2.2rem;
+  padding-bottom: 0.15rem;
+}
+
 /* Mobile: vertical stacked layout, page scroll natural */
 @media (max-width: 768px) {
   .board-shell {
