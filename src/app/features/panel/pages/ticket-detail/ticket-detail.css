@@ -183,3 +183,9 @@
   height: 56px;
   opacity: 0.4;
 }
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

@@ -1,6 +1,10 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TicketService } from '../../../../core/services/ticket-service';
 import { StateTicketService } from '../../../../core/services/state-ticket-service';
 import { RequestTypeService } from '../../../../core/services/request-type-service';
@@ -11,8 +15,28 @@ import { HistoryTicketState } from '../../../../core/models/historyTicketState.m
 import { TicketAttachmentService } from '../../../../core/services/ticket-attachment';
 
 @Component({
+  selector: 'app-confirm-delete-dialog',
+  standalone: true,
+  imports: [MatButtonModule, MatDialogModule],
+  template: `
+    <h2 mat-dialog-title>Eliminar solicitud</h2>
+    <mat-dialog-content>
+      <p>¿Estás seguro de que querés eliminar la solicitud <strong>{{ data.code }}</strong>? Esta acción no se puede deshacer.</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button matButton (click)="ref.close(false)">Cancelar</button>
+      <button matButton="filled" color="warn" (click)="ref.close(true)">Eliminar</button>
+    </mat-dialog-actions>
+  `,
+})
+export class ConfirmDeleteDialog {
+  data = inject<{ code: string }>(MAT_DIALOG_DATA);
+  ref = inject(MatDialogRef<ConfirmDeleteDialog>);
+}
+
+@Component({
   selector: 'app-ticket-detail',
-  imports: [MatIconModule, RouterLink, StatusTimeline],
+  imports: [MatIconModule, MatButtonModule, MatDialogModule, RouterLink, StatusTimeline],
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.css',
 })
@@ -23,6 +47,8 @@ export default class TicketDetail {
   private priorityService = inject(PriorityService);
   private historyService = inject(HistoryTicketStateService);
   private attachmentService = inject(TicketAttachmentService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   attachmentUrl = this.attachmentService.attachmentUrl;
   attachmentLoading = this.attachmentService.loading;
@@ -57,6 +83,12 @@ export default class TicketDetail {
   });
 
   ticketHistory = signal<HistoryTicketState[]>([]);
+
+  deleting = signal(false);
+  canEdit = computed(() => {
+    const stateCode = this.state()?.code;
+    return stateCode === 'open';
+  });
 
   constructor() {
     // Carga el historial inicial cuando el ticket esté disponible
@@ -97,12 +129,14 @@ export default class TicketDetail {
 
   getStateBadgeClass(stateCode?: string): string {
     const map: Record<string, string> = {
-      pending: 'badge-pending',
       open: 'badge-open',
-      review: 'badge-review',
-      closed: 'badge-closed',
+      started: 'badge-open',
+      waiting: 'badge-review',
+      finished: 'badge-closed',
+      error: 'badge-closed',
+      cancelled: 'badge-closed',
     };
-    return map[stateCode ?? ''] ?? 'badge-pending';
+    return map[stateCode ?? ''] ?? 'badge-open';
   }
 
   getPriorityDotClass(priorityCode?: string): string {
@@ -122,6 +156,27 @@ export default class TicketDetail {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+    });
+  }
+
+  confirmDelete(): void {
+    const ref = this.dialog.open(ConfirmDeleteDialog, {
+      width: '320px',
+      data: { code: this.ticket()?.code },
+    });
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.deleting.set(true);
+      const id = this.ticket()!.id;
+      this.ticketService.deleteTicket(id).subscribe({
+        next: () => {
+          this.ticketService.loadData();
+          this.router.navigate(['/panel/mis-solicitudes']);
+        },
+        error: () => {
+          this.deleting.set(false);
+        },
+      });
     });
   }
 }

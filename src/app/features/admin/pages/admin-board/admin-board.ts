@@ -58,6 +58,7 @@ export default class AdminBoard implements OnInit {
   error = signal(false);
   cleaning = signal<string | null>(null);
   columns: Column[] = [];
+  private eventSource: EventSource | null = null;
 
   get columnIds(): string[] {
     return this.columns.map((c) => `col-${c.state.id}`);
@@ -65,6 +66,29 @@ export default class AdminBoard implements OnInit {
 
   ngOnInit() {
     this.loadBoard();
+    this.conectarSSE();
+    this.destroyRef.onDestroy(() => this.eventSource?.close());
+  }
+
+  private conectarSSE(): void {
+    const key = sessionStorage.getItem('admin_key') ?? '';
+    this.eventSource = new EventSource(
+      `http://localhost:3000/ticket/admin/events?key=${encodeURIComponent(key)}`,
+    );
+    this.eventSource.onmessage = (event) => {
+      const payload = JSON.parse(event.data);
+      if (payload.type !== 'new_ticket') return;
+
+      const ticket: AdminTicket = payload.ticket;
+      const col = this.columns.find((c) => c.state.id === ticket.state_id);
+      if (!col) return;
+
+      const alreadyExists = col.tickets.some((t) => t.id === ticket.id);
+      if (alreadyExists) return;
+
+      col.tickets.unshift(ticket);
+      this.cdr.detectChanges();
+    };
   }
 
   loadBoard() {

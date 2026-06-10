@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
-import { first, Subject, takeUntil } from 'rxjs';
+import { first, Observable, Subject, takeUntil } from 'rxjs';
 import { Ticket } from '../models/ticket.model';
 import { CurrentUserService } from './current-user-service';
 import { platformBrowser } from '@angular/platform-browser';
@@ -161,5 +161,13 @@ export class TicketService {
       map.set(item.id, item);
     }
     this.state.set({ ticket: map });
+  }
+
+  updateTicket(id: number, priorityId: number): Observable<Ticket> {
+    return this.http.put<Ticket>(`${this.baseUrl}`, { id, priority_id: priorityId });
+  }
+
+  deleteTicket(id: number): Observable<Ticket> {
+    return this.http.delete<Ticket>(`${this.baseUrl}/${id}`);
   }
 }

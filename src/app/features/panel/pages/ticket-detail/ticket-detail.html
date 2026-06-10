@@ -105,6 +105,23 @@
           </dl>
         </section>
 
+        <!-- ACCIONES -->
+        @if (canEdit()) {
+          <div class="action-buttons">
+            <button
+              matButton="outlined"
+              color="warn"
+              class="w-full"
+              type="button"
+              [disabled]="deleting()"
+              (click)="confirmDelete()"
+            >
+              <mat-icon>delete</mat-icon>
+              {{ deleting() ? 'Eliminando...' : 'Eliminar solicitud' }}
+            </button>
+          </div>
+        }
+
         <!-- Volver (persistente al final, no depende del gesto atrás) -->
         <a routerLink="/panel/mis-solicitudes" class="back-button">
           <mat-icon aria-hidden="true">arrow_back</mat-icon>
