@@ -1,0 +1,101 @@
+<div class="board-shell">
+  <header class="board-header">
+    <div class="board-header-left">
+      <mat-icon class="header-icon">admin_panel_settings</mat-icon>
+      <span class="board-title">Panel de Administración</span>
+    </div>
+    <div class="board-header-right">
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="cleanMenu"
+        [disabled]="cleaning() !== null"
+        class="clean-trigger"
+        title="Limpiar tickets"
+      >
+        @if (cleaning() !== null) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>delete_sweep</mat-icon>
+        }
+      </button>
+
+      <mat-menu #cleanMenu="matMenu">
+        <button
+          mat-menu-item
+          (click)="cleanByState('finished', 'Terminados')"
+          class="clean-item clean-item--finished"
+        >
+          <mat-icon>check_circle</mat-icon>
+          <span>Limpiar Terminados</span>
+        </button>
+        <button
+          mat-menu-item
+          (click)="cleanByState('error', 'Error')"
+          class="clean-item clean-item--error"
+        >
+          <mat-icon>error</mat-icon>
+          <span>Limpiar Errores</span>
+        </button>
+        <button
+          mat-menu-item
+          (click)="cleanByState('cancelled', 'Cancelados')"
+          class="clean-item clean-item--cancelled"
+        >
+          <mat-icon>cancel</mat-icon>
+          <span>Limpiar Cancelados</span>
+        </button>
+      </mat-menu>
+
+      <button mat-icon-button (click)="loadBoard()" [disabled]="loading()" title="Recargar">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-icon-button (click)="logout()" title="Salir">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="board-loading">
+      <mat-spinner diameter="44" />
+      <p>Cargando tablero...</p>
+    </div>
+  } @else if (error()) {
+    <div class="board-error">
+      <mat-icon>error_outline</mat-icon>
+      <p>Error al cargar los tickets.</p>
+      <button mat-flat-button (click)="loadBoard()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="board" cdkDropListGroup cdkScrollable>
+      @for (col of columns; track col.state.id) {
+        <div class="column">
+          <div class="column-header" [attr.data-state]="col.state.code">
+            <span class="column-name">{{ col.state.name }}</span>
+            <span class="column-count">{{ col.tickets.length }}</span>
+          </div>
+          <div
+            class="column-body"
+            cdkDropList
+            [id]="'col-' + col.state.id"
+            [cdkDropListData]="col.tickets"
+            [cdkDropListConnectedTo]="columnIds"
+            (cdkDropListDropped)="onDrop($event, col)"
+          >
+            @for (ticket of col.tickets; track ticket.id) {
+              <div cdkDrag class="ticket-drag-wrapper">
+                <app-ticket-card [ticket]="ticket" (cardClick)="openDetail(ticket)" />
+                <ng-template cdkDragPlaceholder>
+                  <div class="drag-placeholder"></div>
+                </ng-template>
+              </div>
+            }
+            @if (col.tickets.length === 0) {
+              <div class="column-empty">Sin tickets</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,23 @@
+<div class="card" (click)="cardClick.emit()">
+  <div class="card-top">
+    <span class="card-code">{{ ticket().code }}</span>
+    <span class="card-date">{{ formatDate(ticket().createdAt) }}</span>
+  </div>
+
+  <div class="card-type">
+    <span class="card-emoji">{{ ticket().request_type?.emoji ?? '📋' }}</span>
+    <span class="card-type-name">{{ ticket().request_type?.short_name ?? 'Solicitud' }}</span>
+  </div>
+
+  <div class="card-footer">
+    <div class="card-user">
+      <mat-icon class="user-icon">person</mat-icon>
+      <span>{{ ticket().user?.username ?? '—' }}</span>
+    </div>
+    <span
+      class="priority-dot"
+      [style.background]="getPriorityColor(ticket().priority?.code)"
+      [title]="ticket().priority?.long_name ?? ''"
+    ></span>
+  </div>
+</div>

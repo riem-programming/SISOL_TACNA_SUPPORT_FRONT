@@ -1,0 +1,192 @@
+<div class="modal-header" mat-dialog-title>
+  <div class="modal-title-row">
+    <mat-icon class="modal-icon">confirmation_number</mat-icon>
+    <span class="modal-code">{{ ticket.code }}</span>
+  </div>
+  <button mat-icon-button mat-dialog-close class="modal-close">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="modal-content">
+  <!-- Estado y prioridad -->
+  <div class="info-row">
+    <div class="info-item">
+      <span class="info-label">Estado</span>
+      <span class="state-badge" [attr.data-state]="ticket.state?.code">
+        {{ ticket.state?.name ?? '—' }}
+      </span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Prioridad</span>
+      <div class="priority-row">
+        <span class="priority-dot" [style.background]="getPriorityColor(ticket.priority?.code)"></span>
+        <span class="info-value">{{ ticket.priority?.long_name ?? '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mover a otro estado -->
+  @if (states.length > 0) {
+    <mat-divider />
+    <div class="state-move-section">
+      <p class="section-title">
+        <mat-icon>swap_horiz</mat-icon>
+        Mover a
+      </p>
+      <div class="state-chips">
+        @for (state of states; track state.id) {
+          <button
+            class="state-chip"
+            [class.state-chip--active]="state.id === ticket.state_id"
+            [attr.data-state]="state.code"
+            [disabled]="moving() || state.id === ticket.state_id"
+            (click)="moveToState(state)"
+          >
+            {{ state.name }}
+          </button>
+        }
+        @if (moving()) {
+          <mat-spinner diameter="18" />
+        }
+      </div>
+    </div>
+  }
+
+  <mat-divider />
+
+  <!-- Usuario -->
+  <div class="info-row">
+    <div class="info-item">
+      <span class="info-label">Usuario</span>
+      <span class="info-value">{{ ticket.user?.username ?? '—' }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Email</span>
+      <span class="info-value">{{ ticket.user?.email ?? '—' }}</span>
+    </div>
+  </div>
+
+  <!-- Tipo y fecha -->
+  <div class="info-row">
+    <div class="info-item">
+      <span class="info-label">Tipo de solicitud</span>
+      <span class="info-value">
+        {{ ticket.request_type?.emoji }} {{ ticket.request_type?.long_name ?? '—' }}
+      </span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Creado</span>
+      <span class="info-value date-value">{{ formatFullDate(ticket.createdAt) }}</span>
+    </div>
+  </div>
+
+  <!-- Solicitud de alta de usuario -->
+  @if (ticket.createUserRequest) {
+    <mat-divider />
+    <h3 class="section-title">
+      <mat-icon>person_add</mat-icon>
+      Solicitud de usuario
+    </h3>
+    <div class="info-row">
+      <div class="info-item">
+        <span class="info-label">Nombre completo</span>
+        <span class="info-value">
+          {{ ticket.createUserRequest.first_names }} {{ ticket.createUserRequest.last_names }}
+        </span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">N° documento</span>
+        <span class="info-value mono">{{ ticket.createUserRequest.document_number }}</span>
+      </div>
+    </div>
+    <div class="info-row">
+      <div class="info-item">
+        <span class="info-label">Cargo</span>
+        <span class="info-value">{{ ticket.createUserRequest.position }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Solicitud de comprobante -->
+  @if (ticket.voucherRequest) {
+    <mat-divider />
+    <h3 class="section-title">
+      <mat-icon>receipt_long</mat-icon>
+      Solicitud de comprobante
+    </h3>
+    <div class="info-row">
+      <div class="info-item">
+        <span class="info-label">Código de comprobante</span>
+        <span class="info-value mono">{{ ticket.voucherRequest.voucher_code || '—' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Especialidad</span>
+        <span class="info-value">{{ ticket.voucherRequest.speciality || '—' }}</span>
+      </div>
+    </div>
+    @if (ticket.voucherRequest.motive) {
+      <div class="info-row">
+        <div class="info-item">
+          <span class="info-label">Motivo</span>
+          <span class="info-value">{{ ticket.voucherRequest.motive }}</span>
+        </div>
+      </div>
+    }
+    @if (ticket.voucherRequest.attachment_key) {
+      <div class="attachment-row">
+        <button mat-stroked-button (click)="openAttachment()" [disabled]="attachmentLoading()">
+          @if (attachmentLoading()) {
+            <mat-spinner diameter="16" />
+          } @else {
+            <mat-icon>attach_file</mat-icon>
+          }
+          {{ attachmentLoading() ? 'Cargando...' : 'Ver adjunto' }}
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Soporte técnico -->
+  @if (ticket.technicalSupportRequest) {
+    <mat-divider />
+    <h3 class="section-title">
+      <mat-icon>build</mat-icon>
+      Soporte técnico
+    </h3>
+    <div class="info-row">
+      <div class="info-item">
+        <span class="info-label">Descripción del problema</span>
+        <span class="info-value">{{ ticket.technicalSupportRequest.problem_description || '—' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Teléfono de contacto</span>
+        <span class="info-value">{{ ticket.technicalSupportRequest.contact_phone || '—' }}</span>
+      </div>
+    </div>
+    <div class="info-row">
+      <div class="info-item">
+        <span class="info-label">Código Anydesk</span>
+        <span class="info-value mono">{{ ticket.technicalSupportRequest.anydesk_code || '—' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Fecha preferida</span>
+        <span class="info-value">{{ ticket.technicalSupportRequest.preferred_support_date || '—' }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Datos crudos -->
+  <mat-divider />
+  <details class="raw-section">
+    <summary class="raw-summary">
+      <mat-icon>data_object</mat-icon>
+      Datos crudos
+    </summary>
+    <pre class="raw-json">{{ ticket | json }}</pre>
+  </details>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

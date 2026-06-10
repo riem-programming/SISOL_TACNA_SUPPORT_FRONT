@@ -13,6 +13,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes'),
+    canActivate: [authGuard],
+  },
+  {
     path: '**',
     redirectTo: '',
   },

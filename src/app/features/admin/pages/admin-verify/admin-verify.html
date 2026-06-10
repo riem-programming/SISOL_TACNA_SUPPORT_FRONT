@@ -1,0 +1,47 @@
+<div class="verify-container">
+  <div class="verify-card">
+    <div class="verify-icon">
+      <mat-icon>admin_panel_settings</mat-icon>
+    </div>
+    <h1 class="verify-title">Panel de Administración</h1>
+    <p class="verify-subtitle">Ingresá la clave de acceso para continuar</p>
+
+    <form (ngSubmit)="submit()" class="verify-form">
+      <mat-form-field appearance="outline" class="verify-field">
+        <mat-label>Clave de acceso</mat-label>
+        <input
+          matInput
+          [type]="showKey() ? 'text' : 'password'"
+          [ngModel]="key()"
+          (ngModelChange)="key.set($event)"
+          name="adminKey"
+          autocomplete="current-password"
+          [disabled]="loading()"
+        />
+        <button matIconSuffix type="button" mat-icon-button (click)="showKey.update(v => !v)">
+          <mat-icon>{{ showKey() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+
+      @if (error()) {
+        <p class="verify-error">
+          <mat-icon>error_outline</mat-icon>
+          Clave incorrecta. Intentá de nuevo.
+        </p>
+      }
+
+      <button
+        mat-flat-button
+        type="submit"
+        class="verify-btn"
+        [disabled]="loading() || !key().trim()"
+      >
+        @if (loading()) {
+          Verificando...
+        } @else {
+          Ingresar
+        }
+      </button>
+    </form>
+  </div>
+</div>
