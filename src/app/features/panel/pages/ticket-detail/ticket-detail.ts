@@ -131,6 +131,24 @@ export default class TicketDetail {
       );
     });
 
+    // Mark user messages as read when admin opens the ticket
+    effect(() => {
+      const receipts = this.ticketService.pendingReadReceipts();
+      const ticketId = this.ticket()?.id;
+      if (!ticketId || !receipts.length) return;
+
+      const relevant = receipts.some((r) => r.ticket_id === ticketId);
+      if (!relevant) return;
+
+      const now = new Date().toISOString();
+      this.comments.update((prev) =>
+        prev.map((c) => (c.author_type === 'user' && !c.read_at ? { ...c, read_at: now } : c)),
+      );
+      this.ticketService.pendingReadReceipts.update((all) =>
+        all.filter((r) => r.ticket_id !== ticketId),
+      );
+    });
+
     // GESTIONAR LA URL DE ARCHIVO
     effect(() => {
       const voucherRequest = this.ticket()?.voucherRequest;

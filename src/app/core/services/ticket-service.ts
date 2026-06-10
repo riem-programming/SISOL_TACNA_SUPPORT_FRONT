@@ -31,6 +31,9 @@ export class TicketService {
   // Incoming real-time comments pushed via SSE
   readonly pendingComments = signal<TicketComment[]>([]);
 
+  // Tickets whose user messages were just marked as read by admin
+  readonly pendingReadReceipts = signal<{ ticket_id: number }[]>([]);
+
   private onDestroy = new Subject<void>();
   private state = signal({ ticket: new Map<number, Ticket>() });
   private platformId = inject(PLATFORM_ID);
@@ -71,6 +74,10 @@ export class TicketService {
       const data = JSON.parse(event.data);
       if (data.type === 'new_comment') {
         this.pendingComments.update((prev) => [...prev, data.comment as TicketComment]);
+        return;
+      }
+      if (data.type === 'messages_read') {
+        this.pendingReadReceipts.update((prev) => [...prev, { ticket_id: data.ticket_id }]);
         return;
       }
       this.manejarEventoEstado(data as TicketStateEvent);
@@ -159,6 +166,7 @@ export class TicketService {
     this.state.set({ ticket: new Map() });
     this.pendingNotifications.set([]);
     this.pendingComments.set([]);
+    this.pendingReadReceipts.set([]);
     this.loading.set(false);
     this.initialized.set(false);
     this.error.set(false);
