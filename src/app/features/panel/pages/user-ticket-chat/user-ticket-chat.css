@@ -143,12 +143,14 @@
   font-size: 14px;
   width: 14px;
   height: 14px;
-  color: var(--mat-sys-primary);
-  opacity: 0.85;
+  color: var(--mat-sys-on-primary-container);
+  opacity: 0.5;
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
-.bubble.own .read-icon {
-  color: var(--mat-sys-on-primary-container);
+.read-icon.read {
+  color: #53bdeb;
+  opacity: 1;
 }
 
 .system-row {

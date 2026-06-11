@@ -207,4 +207,8 @@ export class TicketService {
       message,
     });
   }
+
+  markUserRead(ticketId: number): Observable<void> {
+    return this.http.patch<void>(`http://localhost:3000/ticket-comment/${ticketId}/read`, {});
+  }
 }

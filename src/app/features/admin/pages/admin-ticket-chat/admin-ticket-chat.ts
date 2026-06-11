@@ -38,6 +38,7 @@ export default class AdminTicketChat implements OnInit, OnDestroy {
   sending = signal(false);
   inputValue = '';
   private sseSub?: Subscription;
+  private readSub?: Subscription;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -65,10 +66,19 @@ export default class AdminTicketChat implements OnInit, OnDestroy {
       if (wasNearBottom) this.scheduleScroll('force');
       this.adminService.markAdminRead(id).subscribe();
     });
+
+    this.readSub = this.sseService.messagesRead$.subscribe((ticketId) => {
+      if (ticketId !== id) return;
+      const now = new Date().toISOString();
+      this.comments.update((prev) =>
+        prev.map((c) => (c.author_type === 'admin' && !c.read_at ? { ...c, read_at: now } : c)),
+      );
+    });
   }
 
   ngOnDestroy(): void {
     this.sseSub?.unsubscribe();
+    this.readSub?.unsubscribe();
   }
 
   goBack(): void {

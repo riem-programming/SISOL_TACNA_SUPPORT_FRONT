@@ -51,6 +51,7 @@ export default class UserTicketChat {
           next: (comments) => {
             this.comments.set(comments);
             this.scheduleScroll('force');
+            this.ticketService.markUserRead(ticketId).subscribe();
           },
         });
       },
@@ -71,6 +72,7 @@ export default class UserTicketChat {
           all.filter((c) => c.ticket_id !== ticketId),
         );
         if (wasNearBottom) this.scheduleScroll('force');
+        this.ticketService.markUserRead(ticketId).subscribe();
       },
       { allowSignalWrites: true },
     );

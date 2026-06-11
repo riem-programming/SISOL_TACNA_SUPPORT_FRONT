@@ -31,7 +31,12 @@
                 <span class="bubble-author">{{ comment.user?.username ?? 'Usuario' }}</span>
               }
               <p class="bubble-msg">{{ comment.message }}</p>
-              <span class="bubble-time">{{ formatTime(comment.created_at) }}</span>
+              <div class="bubble-footer">
+                <span class="bubble-time">{{ formatTime(comment.created_at) }}</span>
+                @if (comment.author_type === 'admin') {
+                  <mat-icon class="read-icon" [class.read]="comment.read_at">done_all</mat-icon>
+                }
+              </div>
             </div>
           </div>
         }

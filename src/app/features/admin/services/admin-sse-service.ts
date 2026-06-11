@@ -10,6 +10,7 @@ export class AdminSseService implements OnDestroy {
   readonly newTicket$ = new Subject<AdminTicket>();
   readonly deletedTicketId$ = new Subject<number>();
   readonly newComment$ = new Subject<TicketComment>();
+  readonly messagesRead$ = new Subject<number>();
 
   connect(): void {
     if (this.eventSource) return;
@@ -25,6 +26,8 @@ export class AdminSseService implements OnDestroy {
         this.deletedTicketId$.next(payload.ticket_id);
       } else if (payload.type === 'new_comment') {
         this.newComment$.next(payload.comment);
+      } else if (payload.type === 'messages_read') {
+        this.messagesRead$.next(payload.ticket_id);
       }
     };
   }

@@ -32,7 +32,7 @@
             <div class="bubble-footer">
               <span class="bubble-time">{{ formatTime(comment.created_at) }}</span>
               @if (comment.author_type === 'user') {
-                <mat-icon class="read-icon">{{ comment.read_at ? 'done_all' : 'done' }}</mat-icon>
+                <mat-icon class="read-icon" [class.read]="comment.read_at">done_all</mat-icon>
               }
             </div>
           </div>
