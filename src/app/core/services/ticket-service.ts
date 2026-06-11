@@ -73,7 +73,16 @@ export class TicketService {
     this.eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'new_comment') {
-        this.pendingComments.update((prev) => [...prev, data.comment as TicketComment]);
+        const comment = data.comment as TicketComment;
+        this.pendingComments.update((prev) => [...prev, comment]);
+        const ticket = this.state().ticket.get(comment.ticket_id);
+        if (ticket?.code) {
+          this.webNotif.notify(
+            'Nuevo mensaje',
+            `Recibiste un mensaje en tu solicitud ${ticket.code}`,
+            `/panel/solicitud/${ticket.code}/chat`,
+          );
+        }
         return;
       }
       if (data.type === 'messages_read') {
