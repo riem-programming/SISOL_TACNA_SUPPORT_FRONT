@@ -53,7 +53,7 @@ export default class AdminTicketChat implements OnInit, OnDestroy {
         this.comments.set(comments);
         this.loading.set(false);
         this.scheduleScroll('force');
-        this.adminService.markAdminRead(id).subscribe();
+        this.adminService.markAdminRead(id).subscribe({ error: () => {} });
       },
       error: () => this.loading.set(false),
     });
@@ -64,7 +64,7 @@ export default class AdminTicketChat implements OnInit, OnDestroy {
       const wasNearBottom = this.isNearBottom();
       this.comments.update((prev) => [...prev, comment]);
       if (wasNearBottom) this.scheduleScroll('force');
-      this.adminService.markAdminRead(id).subscribe();
+      this.adminService.markAdminRead(id).subscribe({ error: () => {} });
     });
 
     this.readSub = this.sseService.messagesRead$.subscribe((ticketId) => {

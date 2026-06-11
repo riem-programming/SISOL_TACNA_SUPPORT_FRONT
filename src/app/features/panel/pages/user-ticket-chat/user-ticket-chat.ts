@@ -7,6 +7,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -51,7 +52,9 @@ export default class UserTicketChat {
           next: (comments) => {
             this.comments.set(comments);
             this.scheduleScroll('force');
-            this.ticketService.markUserRead(ticketId).subscribe();
+            untracked(() =>
+              this.ticketService.markUserRead(ticketId).subscribe({ error: () => {} }),
+            );
           },
         });
       },
@@ -72,7 +75,9 @@ export default class UserTicketChat {
           all.filter((c) => c.ticket_id !== ticketId),
         );
         if (wasNearBottom) this.scheduleScroll('force');
-        this.ticketService.markUserRead(ticketId).subscribe();
+        untracked(() =>
+          this.ticketService.markUserRead(ticketId).subscribe({ error: () => {} }),
+        );
       },
       { allowSignalWrites: true },
     );

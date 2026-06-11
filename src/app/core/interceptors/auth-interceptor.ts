@@ -8,7 +8,7 @@ import { CurrentUserService } from '../services/current-user-service';
 
 // Endpoints whose 401 is part of their own flow, not an expired session:
 // login (wrong credentials) and verify-session (guard redirects silently)
-const EXCLUDED_401_PATHS = ['/login', '/verify-session'];
+const EXCLUDED_401_PATHS = ['/login', '/verify-session', '/read'];
 
 // Dedupe guard: N concurrent requests failing with 401 must trigger
 // the clear/navigate/snackbar side effects only once
