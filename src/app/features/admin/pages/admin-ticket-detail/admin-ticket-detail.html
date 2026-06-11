@@ -1,0 +1,216 @@
+<div class="detail-page">
+  <!-- Top bar -->
+  <div class="detail-topbar">
+    <button mat-icon-button (click)="goBack()" class="back-btn" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    @if (ticket(); as t) {
+      <div class="topbar-title-row">
+        <mat-icon class="topbar-icon">confirmation_number</mat-icon>
+        <span class="topbar-code">{{ t.code }}</span>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (ticket(); as t) {
+    <div class="detail-content">
+      <!-- Estado y prioridad -->
+      <div class="info-row">
+        <div class="info-item">
+          <span class="info-label">Estado</span>
+          <span class="state-badge" [attr.data-state]="t.state?.code">
+            {{ t.state?.name ?? '—' }}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Prioridad</span>
+          <div class="priority-row">
+            <span class="priority-dot" [style.background]="getPriorityColor(t.priority?.code)"></span>
+            <span class="info-value">{{ t.priority?.long_name ?? '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mover a otro estado -->
+      @if (states.length > 0) {
+        <mat-divider />
+        <div class="state-move-section">
+          <p class="section-title">
+            <mat-icon>swap_horiz</mat-icon>
+            Mover a
+          </p>
+          <div class="state-chips">
+            @for (state of states; track state.id) {
+              <button
+                class="state-chip"
+                [class.state-chip--active]="state.id === t.state_id"
+                [attr.data-state]="state.code"
+                [disabled]="moving() || state.id === t.state_id"
+                (click)="moveToState(state)"
+              >
+                {{ state.name }}
+              </button>
+            }
+            @if (moving()) {
+              <mat-spinner diameter="18" />
+            }
+          </div>
+        </div>
+      }
+
+      <mat-divider />
+
+      <!-- Usuario -->
+      <div class="info-row">
+        <div class="info-item">
+          <span class="info-label">Usuario</span>
+          <span class="info-value">{{ t.user?.username ?? '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ t.user?.email ?? '—' }}</span>
+        </div>
+      </div>
+
+      <!-- Tipo y fecha -->
+      <div class="info-row">
+        <div class="info-item">
+          <span class="info-label">Tipo de solicitud</span>
+          <span class="info-value">
+            {{ t.request_type?.emoji }} {{ t.request_type?.long_name ?? '—' }}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Creado</span>
+          <span class="info-value date-value">{{ formatFullDate(t.createdAt) }}</span>
+        </div>
+      </div>
+
+      <!-- Solicitud de alta de usuario -->
+      @if (t.createUserRequest) {
+        <mat-divider />
+        <h3 class="section-title">
+          <mat-icon>person_add</mat-icon>
+          Solicitud de usuario
+        </h3>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Nombre completo</span>
+            <span class="info-value">
+              {{ t.createUserRequest.first_names }} {{ t.createUserRequest.last_names }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">N° documento</span>
+            <span class="info-value mono">{{ t.createUserRequest.document_number }}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Cargo</span>
+            <span class="info-value">{{ t.createUserRequest.position }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Solicitud de comprobante -->
+      @if (t.voucherRequest) {
+        <mat-divider />
+        <h3 class="section-title">
+          <mat-icon>receipt_long</mat-icon>
+          Solicitud de comprobante
+        </h3>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Código de comprobante</span>
+            <span class="info-value mono">{{ t.voucherRequest.voucher_code || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Especialidad</span>
+            <span class="info-value">{{ t.voucherRequest.speciality || '—' }}</span>
+          </div>
+        </div>
+        @if (t.voucherRequest.motive) {
+          <div class="info-row">
+            <div class="info-item">
+              <span class="info-label">Motivo</span>
+              <span class="info-value">{{ t.voucherRequest.motive }}</span>
+            </div>
+          </div>
+        }
+        @if (t.voucherRequest.attachment_key) {
+          <div class="attachment-row">
+            <button mat-stroked-button (click)="openAttachment()" [disabled]="attachmentLoading()">
+              @if (attachmentLoading()) {
+                <mat-spinner diameter="16" />
+              } @else {
+                <mat-icon>attach_file</mat-icon>
+              }
+              {{ attachmentLoading() ? 'Cargando...' : 'Ver adjunto' }}
+            </button>
+          </div>
+        }
+      }
+
+      <!-- Soporte técnico -->
+      @if (t.technicalSupportRequest) {
+        <mat-divider />
+        <h3 class="section-title">
+          <mat-icon>build</mat-icon>
+          Soporte técnico
+        </h3>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Descripción del problema</span>
+            <span class="info-value">{{ t.technicalSupportRequest.problem_description || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Teléfono de contacto</span>
+            <span class="info-value">{{ t.technicalSupportRequest.contact_phone || '—' }}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Código Anydesk</span>
+            <span class="info-value mono">{{ t.technicalSupportRequest.anydesk_code || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Fecha preferida</span>
+            <span class="info-value">{{ t.technicalSupportRequest.preferred_support_date || '—' }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Chat -->
+      <mat-divider />
+      <div class="chat-action-row">
+        <button mat-flat-button (click)="openChat()" class="chat-btn">
+          <mat-icon>chat</mat-icon>
+          Chat
+          @if (unreadCount() > 0) {
+            <span class="chat-unread-badge">{{ unreadCount() }}</span>
+          }
+        </button>
+      </div>
+
+      <!-- Datos crudos -->
+      <mat-divider />
+      <details class="raw-section">
+        <summary class="raw-summary">
+          <mat-icon>data_object</mat-icon>
+          Datos crudos
+        </summary>
+        <pre class="raw-json">{{ t | json }}</pre>
+      </details>
+    </div>
+  } @else {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <span>No se pudo cargar el ticket.</span>
+    </div>
+  }
+</div>
