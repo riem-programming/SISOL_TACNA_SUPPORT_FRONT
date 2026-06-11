@@ -24,6 +24,11 @@ const PANEL_ROUTES: Routes = [
         title: 'Mis solicitudes',
       },
       {
+        path: 'solicitud/:code/chat',
+        loadComponent: () => import('./pages/user-ticket-chat/user-ticket-chat'),
+        title: 'Chat de soporte',
+      },
+      {
         path: 'solicitud/:code',
         loadComponent: () => import('./pages/ticket-detail/ticket-detail'),
         title: 'Detalle de solicitud',

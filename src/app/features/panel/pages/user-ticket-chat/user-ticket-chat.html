@@ -1,0 +1,71 @@
+<div class="chat-wrap">
+  <!-- Header -->
+  <div class="chat-header">
+    <button mat-icon-button (click)="goBack()" aria-label="Volver">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="chat-header-info">
+      @if (ticket()) {
+        <span class="chat-header-emoji" aria-hidden="true">{{ requestType()?.emoji }}</span>
+        <div class="chat-header-text">
+          <span class="chat-header-name">{{ requestType()?.short_name }}</span>
+          <span class="chat-header-code">{{ ticket()!.code }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Thread -->
+  <div class="chat-thread" #threadRef>
+    @for (comment of comments(); track comment.id) {
+      @if (comment.author_type === 'system') {
+        <div class="system-row">
+          <span class="system-msg">{{ comment.message }}</span>
+        </div>
+      } @else {
+        <div class="bubble-row" [class.own]="comment.author_type === 'user'">
+          <div class="bubble" [class.own]="comment.author_type === 'user'">
+            @if (comment.author_type === 'admin') {
+              <span class="bubble-author">Soporte</span>
+            }
+            <p class="bubble-msg">{{ comment.message }}</p>
+            <div class="bubble-footer">
+              <span class="bubble-time">{{ formatTime(comment.created_at) }}</span>
+              @if (comment.author_type === 'user') {
+                <mat-icon class="read-icon">{{ comment.read_at ? 'done_all' : 'done' }}</mat-icon>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    } @empty {
+      <p class="chat-empty">Sin mensajes aún. Escribí para empezar.</p>
+    }
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-bar">
+    <textarea
+      #chatInput
+      class="chat-textarea"
+      placeholder="Escribir mensaje..."
+      rows="1"
+      [disabled]="sending()"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+    ></textarea>
+    <button
+      mat-icon-button
+      class="send-btn"
+      [disabled]="sending()"
+      (click)="send()"
+      aria-label="Enviar"
+    >
+      @if (sending()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <mat-icon>send</mat-icon>
+      }
+    </button>
+  </div>
+</div>
