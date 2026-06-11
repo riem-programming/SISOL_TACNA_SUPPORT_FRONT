@@ -13,8 +13,6 @@ import { StatusTimeline } from './components/status-timeline/status-timeline';
 import { HistoryTicketStateService } from '../../../../core/services/history-ticket-state-service';
 import { HistoryTicketState } from '../../../../core/models/historyTicketState.model';
 import { TicketAttachmentService } from '../../../../core/services/ticket-attachment';
-import { TicketComment } from '../../../../core/models/ticket-comment.model';
-import { TicketComments } from '../../../../shared/components/ticket-comments/ticket-comments';
 
 @Component({
   selector: 'app-confirm-delete-dialog',
@@ -38,7 +36,7 @@ export class ConfirmDeleteDialog {
 
 @Component({
   selector: 'app-ticket-detail',
-  imports: [MatIconModule, MatButtonModule, MatDialogModule, RouterLink, StatusTimeline, TicketComments],
+  imports: [MatIconModule, MatButtonModule, MatDialogModule, RouterLink, StatusTimeline],
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.css',
 })
@@ -85,8 +83,6 @@ export default class TicketDetail {
   });
 
   ticketHistory = signal<HistoryTicketState[]>([]);
-  comments = signal<TicketComment[]>([]);
-  sendingComment = signal(false);
 
   deleting = signal(false);
   canEdit = computed(() => {
@@ -94,13 +90,16 @@ export default class TicketDetail {
     return stateCode === 'open';
   });
 
+  unreadCount = computed(() =>
+    this.ticketService.pendingComments().filter((c) => c.ticket_id === this.ticket()?.id).length,
+  );
+
   constructor() {
     // Carga el historial inicial cuando el ticket esté disponible
     effect(() => {
       const ticketId = this.ticket()?.id;
       if (!ticketId) return;
       this.cargarHistorial(ticketId);
-      this.cargarComments(ticketId);
     });
 
     // Recarga el historial cuando llegue un SSE de este ticket
@@ -113,40 +112,6 @@ export default class TicketDetail {
       if (isThisTicket) {
         this.cargarHistorial(ticketId);
       }
-    });
-
-    // Append new comments arriving via SSE
-    effect(() => {
-      const incoming = this.ticketService.pendingComments();
-      if (!incoming.length) return;
-      const ticketId = this.ticket()?.id;
-      if (!ticketId) return;
-
-      const relevant = incoming.filter((c) => c.ticket_id === ticketId);
-      if (!relevant.length) return;
-
-      this.comments.update((prev) => [...prev, ...relevant]);
-      this.ticketService.pendingComments.update((all) =>
-        all.filter((c) => c.ticket_id !== ticketId),
-      );
-    });
-
-    // Mark user messages as read when admin opens the ticket
-    effect(() => {
-      const receipts = this.ticketService.pendingReadReceipts();
-      const ticketId = this.ticket()?.id;
-      if (!ticketId || !receipts.length) return;
-
-      const relevant = receipts.some((r) => r.ticket_id === ticketId);
-      if (!relevant) return;
-
-      const now = new Date().toISOString();
-      this.comments.update((prev) =>
-        prev.map((c) => (c.author_type === 'user' && !c.read_at ? { ...c, read_at: now } : c)),
-      );
-      this.ticketService.pendingReadReceipts.update((all) =>
-        all.filter((r) => r.ticket_id !== ticketId),
-      );
     });
 
     // GESTIONAR LA URL DE ARCHIVO
@@ -166,23 +131,8 @@ export default class TicketDetail {
     });
   }
 
-  private cargarComments(ticketId: number): void {
-    this.ticketService.getComments(ticketId).subscribe({
-      next: (comments) => this.comments.set(comments),
-    });
-  }
-
-  onSendComment(message: string): void {
-    const ticketId = this.ticket()?.id;
-    if (!ticketId) return;
-    this.sendingComment.set(true);
-    this.ticketService.sendComment(ticketId, message).subscribe({
-      next: (comment) => {
-        this.comments.update((prev) => [...prev, comment]);
-        this.sendingComment.set(false);
-      },
-      error: () => this.sendingComment.set(false),
-    });
+  openChat(): void {
+    this.router.navigate(['/panel/solicitud', this.code(), 'chat']);
   }
 
   getStateBadgeClass(stateCode?: string): string {

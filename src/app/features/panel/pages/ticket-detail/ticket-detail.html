@@ -105,14 +105,21 @@
           </dl>
         </section>
 
-        <!-- COMMENTS -->
-        <section class="detail-card" aria-labelledby="comments-title">
-          <app-ticket-comments
-            [comments]="comments()"
-            [currentAuthorType]="'user'"
-            [sending]="sendingComment()"
-            (sendMessage)="onSendComment($event)"
-          />
+        <!-- MENSAJES -->
+        <section class="detail-card">
+          <button type="button" class="chat-entry-row" (click)="openChat()">
+            <div class="chat-entry-icon">
+              <mat-icon>forum</mat-icon>
+            </div>
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
+              <span class="text-base font-semibold">Mensajes de soporte</span>
+              <span class="text-sm text-muted-foreground">Comunicación directa con el equipo</span>
+            </div>
+            @if (unreadCount() > 0) {
+              <span class="chat-unread-badge" aria-label="{{ unreadCount() }} mensajes nuevos">{{ unreadCount() }}</span>
+            }
+            <mat-icon class="chat-entry-chevron" aria-hidden="true">chevron_right</mat-icon>
+          </button>
         </section>
 
         <!-- ACCIONES -->

@@ -133,7 +133,12 @@
                   </span>
                 </div>
               </div>
-              <mat-icon class="row-chevron" aria-hidden="true">chevron_right</mat-icon>
+              <div class="row-end" aria-hidden="true">
+                @if (unreadTicketIds().has(ticket.id)) {
+                  <span class="unread-dot"></span>
+                }
+                <mat-icon class="row-chevron">chevron_right</mat-icon>
+              </div>
             </button>
           } @placeholder (minimum 100ms) {
             <div class="ticket-row-placeholder"></div>

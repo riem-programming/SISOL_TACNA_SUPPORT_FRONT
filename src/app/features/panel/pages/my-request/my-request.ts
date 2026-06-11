@@ -40,6 +40,10 @@ export default class MyRequest {
   searchQuery = signal('');
   searchControl = form(this.searchQuery);
 
+  unreadTicketIds = computed(() =>
+    new Set(this.ticketService.pendingComments().map((c) => c.ticket_id)),
+  );
+
   filteredTickets = computed(() => {
     const q = this.searchQuery()?.toLowerCase() ?? '';
     const type = this.selectedType();
