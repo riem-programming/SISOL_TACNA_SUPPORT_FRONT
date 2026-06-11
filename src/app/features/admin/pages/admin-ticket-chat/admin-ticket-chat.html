@@ -1,0 +1,66 @@
+<div class="chat-page">
+  <!-- Header -->
+  <div class="chat-header">
+    <button mat-icon-button (click)="goBack()" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="chat-header-info">
+      <mat-icon class="header-icon">confirmation_number</mat-icon>
+      <span class="header-code">{{ ticketCode() || '#' + ticketId() }}</span>
+    </div>
+  </div>
+
+  <!-- Thread -->
+  <div class="chat-thread" #threadRef>
+    @if (loading()) {
+      <div class="chat-loading">
+        <mat-spinner diameter="32" />
+      </div>
+    } @else if (comments().length === 0) {
+      <p class="chat-empty">Sin mensajes aún.</p>
+    } @else {
+      @for (comment of comments(); track comment.id) {
+        @if (comment.author_type === 'system') {
+          <div class="system-row">
+            <span class="system-msg">{{ comment.message }}</span>
+          </div>
+        } @else {
+          <div class="bubble-row" [class.own]="comment.author_type === 'admin'">
+            <div class="bubble" [class.own]="comment.author_type === 'admin'">
+              @if (comment.author_type === 'user') {
+                <span class="bubble-author">{{ comment.user?.username ?? 'Usuario' }}</span>
+              }
+              <p class="bubble-msg">{{ comment.message }}</p>
+              <span class="bubble-time">{{ formatTime(comment.created_at) }}</span>
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-bar">
+    <textarea
+      class="chat-textarea"
+      placeholder="Escribir mensaje..."
+      rows="1"
+      [disabled]="sending()"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+    ></textarea>
+    <button
+      mat-icon-button
+      class="send-btn"
+      [disabled]="sending()"
+      (click)="send()"
+      aria-label="Send"
+    >
+      @if (sending()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <mat-icon>send</mat-icon>
+      }
+    </button>
+  </div>
+</div>
