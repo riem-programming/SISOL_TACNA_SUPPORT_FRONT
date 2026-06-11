@@ -22,6 +22,12 @@ export class AdminService {
     });
   }
 
+  getTicketById(id: number) {
+    return this.http.get<AdminTicket>(`${this.baseUrl}/ticket/admin/${id}`, {
+      headers: this.adminHeaders(),
+    });
+  }
+
   updateTicketState(ticketId: number, stateId: number) {
     return this.http.patch(`${this.baseUrl}/ticket/${ticketId}/state`, { state_id: stateId }, {
       headers: this.adminHeaders(),

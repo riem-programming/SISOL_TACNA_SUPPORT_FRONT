@@ -13,6 +13,18 @@ const ADMIN_ROUTES: Routes = [
     canActivate: [adminGuard],
     title: 'Admin — Panel',
   },
+  {
+    path: 'ticket/:id',
+    loadComponent: () => import('./pages/admin-ticket-detail/admin-ticket-detail'),
+    canActivate: [adminGuard],
+    title: 'Admin — Ticket',
+  },
+  {
+    path: 'ticket/:id/chat',
+    loadComponent: () => import('./pages/admin-ticket-chat/admin-ticket-chat'),
+    canActivate: [adminGuard],
+    title: 'Admin — Chat',
+  },
   { path: '', redirectTo: 'board', pathMatch: 'full' },
   { path: '**', redirectTo: 'board' },
 ];

@@ -22,14 +22,13 @@ import { filter, first, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { AdminService } from '../../services/admin-service';
+import { AdminSseService } from '../../services/admin-sse-service';
 import { StateTicketService } from '../../../../core/services/state-ticket-service';
 import { AdminTicket } from '../../models/admin-ticket.model';
 import { StateTicket } from '../../../../core/models/stateTicket.model';
 import { TicketCard } from '../../components/ticket-card/ticket-card';
-import { TicketDetailModal } from '../../components/ticket-detail-modal/ticket-detail-modal';
 
 interface Column {
   state: StateTicket;
@@ -44,7 +43,6 @@ interface Column {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatDialogModule,
     MatMenuModule,
     TicketCard,
   ],
@@ -54,10 +52,10 @@ interface Column {
 export default class AdminBoard implements OnInit {
   private adminService = inject(AdminService);
   private stateService = inject(StateTicketService);
-  private dialog = inject(MatDialog);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
+  private adminSseService = inject(AdminSseService);
 
   @ViewChild('searchInputRef') private searchInputRef?: ElementRef<HTMLInputElement>;
 
@@ -73,7 +71,6 @@ export default class AdminBoard implements OnInit {
   searchQuery = signal('');
   searchInput = signal('');
   columns: Column[] = [];
-  private eventSource: EventSource | null = null;
 
   get filteredColumns(): Column[] {
     const q = this.searchQuery().trim();
@@ -123,39 +120,19 @@ export default class AdminBoard implements OnInit {
 
   ngOnInit() {
     this.loadBoard();
-    this.conectarSSE();
-    this.destroyRef.onDestroy(() => this.eventSource?.close());
-  }
-
-  private conectarSSE(): void {
-    const key = sessionStorage.getItem('admin_key') ?? '';
-    this.eventSource = new EventSource(
-      `http://localhost:3000/ticket/admin/events?key=${encodeURIComponent(key)}`,
-    );
-    this.eventSource.onmessage = (event) => {
-      const payload = JSON.parse(event.data);
-
-      if (payload.type === 'new_ticket') {
-        const ticket: AdminTicket = payload.ticket;
-        const col = this.columns.find((c) => c.state.id === ticket.state_id);
-        if (!col) return;
-        if (col.tickets.some((t) => t.id === ticket.id)) return;
-        col.tickets.unshift(ticket);
-        this.cdr.detectChanges();
-        return;
+    this.adminSseService.connect();
+    this.adminSseService.newTicket$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((ticket) => {
+      const col = this.columns.find((c) => c.state.id === ticket.state_id);
+      if (!col || col.tickets.some((t) => t.id === ticket.id)) return;
+      col.tickets.unshift(ticket);
+      this.cdr.detectChanges();
+    });
+    this.adminSseService.deletedTicketId$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((ticketId) => {
+      for (const col of this.columns) {
+        const idx = col.tickets.findIndex((t) => t.id === ticketId);
+        if (idx !== -1) { col.tickets.splice(idx, 1); this.cdr.detectChanges(); break; }
       }
-
-      if (payload.type === 'deleted_ticket') {
-        for (const col of this.columns) {
-          const idx = col.tickets.findIndex((t) => t.id === payload.ticket_id);
-          if (idx !== -1) {
-            col.tickets.splice(idx, 1);
-            this.cdr.detectChanges();
-            break;
-          }
-        }
-      }
-    };
+    });
   }
 
   loadBoard() {
@@ -214,17 +191,7 @@ export default class AdminBoard implements OnInit {
   }
 
   openDetail(ticket: AdminTicket) {
-    this.dialog
-      .open(TicketDetailModal, {
-        data: ticket,
-        maxWidth: '640px',
-        width: '95vw',
-        panelClass: 'ticket-detail-dialog',
-      })
-      .afterClosed()
-      .subscribe((result) => {
-        if (result?.stateChanged) this.loadBoard();
-      });
+    this.router.navigate(['admin/ticket', ticket.id]);
   }
 
   cleanByState(code: string, label: string) {
@@ -246,6 +213,7 @@ export default class AdminBoard implements OnInit {
   logout() {
     sessionStorage.removeItem('admin_verified');
     sessionStorage.removeItem('admin_key');
+    this.adminSseService.disconnect();
     this.router.navigate(['/']);
   }
 }
