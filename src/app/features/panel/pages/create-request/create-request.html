@@ -64,7 +64,8 @@
           codeRequest !== 'TICKET_UNLOCK_GT30' &&
           codeRequest !== 'CREDIT_NOTE_CREATE' &&
           codeRequest !== 'CREDIT_NOTE_REVERT' &&
-          codeRequest !== 'USR_CREATE'
+          codeRequest !== 'USR_CREATE' &&
+          codeRequest !== 'TICKET_REASSIGN'
         ) {
           <mat-step [completed]="formCreate.supportModeId().valid()">
             <app-stepper-card>
@@ -513,6 +514,41 @@
                     </div>
                   }
                 </div>
+              </div>
+            } @else if (codeRequest === 'TICKET_REASSIGN') {
+              <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                <mat-form-field>
+                  <mat-label>Nuevo responsable</mat-label>
+                  <input
+                    [formField]="formCreate.newResponsible"
+                    matInput
+                    placeholder="Ej: Dr. Obama"
+                  />
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Nº de tickets</mat-label>
+                  <mat-chip-grid #chipGrid>
+                    @for (num of formCreate.ticketNumbers().value() ?? []; track num) {
+                      <mat-chip-row (removed)="removeTicketNumber(num)">
+                        {{ num }}
+                        <button matChipRemove [attr.aria-label]="'Eliminar ticket ' + num">
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip-row>
+                    }
+                    <input
+                      placeholder="Ej: B452-112312"
+                      [matChipInputFor]="chipGrid"
+                      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                      (matChipInputTokenEnd)="addTicketNumber($event)"
+                    />
+                  </mat-chip-grid>
+                  @if (formCreate.ticketNumbers().invalid()) {
+                    <mat-error>Ingresá al menos un número de ticket</mat-error>
+                  }
+                  <mat-hint>Presioná Enter o coma para agregar</mat-hint>
+                </mat-form-field>
               </div>
             } @else if (codeRequest === 'USR_CREATE') {
               <div class="grid grid-cols-1 gap-3 sm:gap-4">

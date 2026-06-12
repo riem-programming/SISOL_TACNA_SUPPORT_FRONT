@@ -1,4 +1,6 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
   form,
   FormField,
@@ -53,6 +55,7 @@ import { VoiceInput } from '../../../../core/directives/voice-input-directive';
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatCheckboxModule,
+    MatChipsModule,
     VoiceInput,
   ],
   templateUrl: './create-request.html',
@@ -99,6 +102,8 @@ export default class CreateRequest implements OnInit, OnDestroy {
     contractId: null,
     rolIds: null,
     attachments: null,
+    ticketNumbers: null,
+    newResponsible: '',
     keepCreating: false,
   };
 
@@ -115,7 +120,8 @@ export default class CreateRequest implements OnInit, OnDestroy {
         requestType.code === 'TICKET_UNLOCK_GT30' ||
         requestType.code === 'CREDIT_NOTE_CREATE' ||
         requestType.code === 'CREDIT_NOTE_REVERT' ||
-        requestType.code === 'USR_CREATE'
+        requestType.code === 'USR_CREATE' ||
+        requestType.code === 'TICKET_REASSIGN'
         ? true
         : false;
     });
@@ -124,6 +130,7 @@ export default class CreateRequest implements OnInit, OnDestroy {
     hidden(schemaPath.speciality, ({ valueOf }) => {
       const requestType = this.getRequestType(valueOf(schemaPath.requestTypeId));
       if (requestType === null) return true;
+      if (requestType.code === 'TICKET_REASSIGN') return true;
 
       const isVoucherAction =
         requestType.code === 'TICKET_RELEASE_LT30' ||
@@ -278,6 +285,20 @@ export default class CreateRequest implements OnInit, OnDestroy {
       return requestType.code === 'USR_CREATE' ? false : true;
     });
     required(schemaPath.rolIds, { message: 'El rol es obligatorio' });
+
+    hidden(schemaPath.ticketNumbers, ({ valueOf }) => {
+      const requestType = this.getRequestType(valueOf(schemaPath.requestTypeId));
+      if (requestType === null) return true;
+      return requestType.code !== 'TICKET_REASSIGN';
+    });
+    required(schemaPath.ticketNumbers, { message: 'Ingresá al menos un número de ticket' });
+
+    hidden(schemaPath.newResponsible, ({ valueOf }) => {
+      const requestType = this.getRequestType(valueOf(schemaPath.requestTypeId));
+      if (requestType === null) return true;
+      return requestType.code !== 'TICKET_REASSIGN';
+    });
+    required(schemaPath.newResponsible, { message: 'El responsable es obligatorio' });
   });
 
   @ViewChild('stepper') stepper!: MatStepper;
@@ -307,7 +328,8 @@ export default class CreateRequest implements OnInit, OnDestroy {
       code !== 'TICKET_UNLOCK_GT30' &&
       code !== 'CREDIT_NOTE_CREATE' &&
       code !== 'CREDIT_NOTE_REVERT' &&
-      code !== 'USR_CREATE'
+      code !== 'USR_CREATE' &&
+      code !== 'TICKET_REASSIGN'
     );
   });
   totalSteps = computed(() => (this.hasSupportModeStep() ? 4 : 3));
@@ -439,6 +461,20 @@ export default class CreateRequest implements OnInit, OnDestroy {
           }
           this.router.navigate(['panel', 'mis-solicitudes']);
         });
+      } else if (codeRequest === 'TICKET_REASSIGN') {
+        this.createRequestService.createTicketReassignRequest(data).subscribe((result) => {
+          if (result.error) {
+            this.openSnackBar(result.error.message, 'Cerrar');
+            return;
+          }
+          this.openSnackBar('¡Solicitud creada exitosamente!', 'OK');
+          this.ticketService.loadData();
+          if (data.keepCreating) {
+            this.resetSpecificStateForm(['ticketNumbers', 'newResponsible']);
+            return;
+          }
+          this.router.navigate(['panel', 'mis-solicitudes']);
+        });
       } else {
         this.openSnackBar('Ocurrio un error', 'Cerrar');
       }
@@ -475,6 +511,26 @@ export default class CreateRequest implements OnInit, OnDestroy {
     const supportMode = this.supportModeService.getById(id);
     if (!supportMode) return null;
     return supportMode;
+  }
+
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+
+  addTicketNumber(event: MatChipInputEvent) {
+    const val = (event.value ?? '').trim();
+    event.chipInput!.clear();
+    if (!val) return;
+    const current = this.formCreateModel().ticketNumbers ?? [];
+    if (current.includes(val)) return;
+    this.formCreateModel.update((c) => ({ ...c, ticketNumbers: [...current, val] }));
+  }
+
+  removeTicketNumber(num: string) {
+    const current = this.formCreateModel().ticketNumbers ?? [];
+    const updated = current.filter((n) => n !== num);
+    this.formCreateModel.update((c) => ({
+      ...c,
+      ticketNumbers: updated.length > 0 ? updated : null,
+    }));
   }
 
   onDragOver(event: DragEvent) {
