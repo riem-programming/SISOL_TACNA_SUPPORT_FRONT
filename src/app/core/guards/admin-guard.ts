@@ -8,7 +8,8 @@ export const adminGuard: CanActivateFn = () => {
 
   if (isPlatformServer(platformId)) return false;
 
-  if (sessionStorage.getItem('admin_verified') !== 'true') {
+  const key = sessionStorage.getItem('admin_key');
+  if (!key) {
     router.navigate(['/admin/verify']);
     return false;
   }

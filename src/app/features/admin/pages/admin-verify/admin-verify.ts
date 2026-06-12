@@ -30,7 +30,6 @@ export default class AdminVerify {
       next: (res) => {
         this.loading.set(false);
         if (res.valid) {
-          sessionStorage.setItem('admin_verified', 'true');
           sessionStorage.setItem('admin_key', k);
           this.router.navigate(['/admin/board']);
         } else {

@@ -211,7 +211,6 @@ export default class AdminBoard implements OnInit {
   }
 
   logout() {
-    sessionStorage.removeItem('admin_verified');
     sessionStorage.removeItem('admin_key');
     this.adminSseService.disconnect();
     this.router.navigate(['/']);
