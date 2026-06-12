@@ -4,35 +4,28 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../../features/auth/services/auth';
 import { catchError, map, of } from 'rxjs';
 
-export const authGuard: CanActivateFn = (_route, state) => {
+export const loggedInGuard: CanActivateFn = (_route, _state) => {
   const platformId = inject(PLATFORM_ID);
   const authService = inject(AuthService);
   const router = inject(Router);
 
   if (isPlatformServer(platformId)) {
-    return false;
+    return true;
   }
 
   const accessToken = localStorage.getItem('access_token');
   if (!accessToken) {
-    sessionStorage.setItem('auth_return_url', state.url);
-    router.navigate(['']);
-    return false;
+    return true;
   }
 
   return authService.verifySession().pipe(
     map((status: boolean) => {
-      if (!status) {
-        sessionStorage.setItem('auth_return_url', state.url);
-        router.navigate(['']);
+      if (status) {
+        router.navigate(['panel']);
         return false;
       }
       return true;
     }),
-    catchError(() => {
-      sessionStorage.setItem('auth_return_url', state.url);
-      router.navigate(['']);
-      return of(false);
-    }),
+    catchError(() => of(true)),
   );
 };

@@ -110,7 +110,9 @@ export default class Auth {
         }
 
         this.currentUserService.user.set(data.user);
-        this.router.navigate(['panel']);
+        const returnUrl = sessionStorage.getItem('auth_return_url') ?? '/panel';
+        sessionStorage.removeItem('auth_return_url');
+        this.router.navigateByUrl(returnUrl);
         this.pushNotificationService.subscribeToNotifications();
         this.formAuth().reset();
         this.formAuthModel.set({
