@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { HistoryTicketState } from '../../../../../../core/models/historyTicketState.model';
 
@@ -13,7 +14,7 @@ interface TimelineStep {
 
 @Component({
   selector: 'app-status-timeline',
-  imports: [MatIconModule],
+  imports: [MatIconModule, DatePipe],
   templateUrl: './status-timeline.html',
   styleUrl: './status-timeline.css',
 })

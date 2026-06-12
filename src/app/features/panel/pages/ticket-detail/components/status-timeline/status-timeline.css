@@ -96,3 +96,8 @@
   font-weight: 600;
   color: var(--mat-sys-primary);
 }
+
+.step-date {
+  font-size: 0.75rem;
+  color: var(--mat-sys-outline);
+}
