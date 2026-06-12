@@ -21,6 +21,8 @@ export interface FormCreateRequest {
   contractId: number | null;
   rolIds: number[] | null;
   attachments: File | null;
+  ticketNumbers: string[] | null;
+  newResponsible: string;
   keepCreating: boolean;
 }
 
@@ -62,4 +64,13 @@ export interface CreateCreateUserRequest {
   position: string;
   contract_type_id: number | null;
   system_role_ids: number[] | null;
+}
+
+export interface CreateTicketReassignRequest {
+  state_id: number;
+  request_type_id: number | null;
+  priority_id: number | null;
+  user_id: number;
+  ticket_numbers: string[];
+  new_responsible: string;
 }

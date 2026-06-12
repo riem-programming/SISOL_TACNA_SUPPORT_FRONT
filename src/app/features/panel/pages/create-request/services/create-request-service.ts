@@ -15,6 +15,8 @@ import { createVoucherRequestAdapter } from '../adapters/form-to-voucher-request
 import { VoucherRequest } from '../../../../../core/models/voucher-request.model';
 import { createCreateUserRequestAdapter } from '../adapters/form-to-create-user-request.adapter';
 import { CreateUserRequest } from '../../../../../core/models/createUserRequest.model';
+import { createTicketReassignRequestAdapter } from '../adapters/form-to-ticket-reassign.adapter';
+import { CreateTicketReassignRequest } from '../model/create-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -147,6 +149,28 @@ export class CreateRequestService {
           data: null,
           error: error.error as ErrorResponse,
         }),
+      ),
+      finalize(() => this.loading.set(false)),
+    );
+  }
+
+  createTicketReassignRequest(
+    data: FormCreateRequest,
+  ): Observable<ApiResult<any, ErrorResponse>> {
+    this.onDestroy.next();
+    this.loading.set(true);
+
+    const stateOpen = this.stateTicketService.getAll().find((s) => s.code === 'open')?.id ?? 0;
+    const currentUserId = this.currentUserService.user()?.id ?? 0;
+
+    const body = createTicketReassignRequestAdapter(data, currentUserId, stateOpen);
+
+    return this.http.post<any>(`${this.baseUrl}/ticket-reassign-request`, body).pipe(
+      takeUntil(this.onDestroy),
+      first(),
+      map((response: any) => ({ data: response, error: null })),
+      catchError((error: HttpErrorResponse) =>
+        of({ data: null, error: error.error as ErrorResponse }),
       ),
       finalize(() => this.loading.set(false)),
     );
