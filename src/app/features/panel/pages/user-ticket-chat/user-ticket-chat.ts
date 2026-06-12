@@ -58,7 +58,6 @@ export default class UserTicketChat {
           },
         });
       },
-      { allowSignalWrites: true },
     );
 
     effect(
@@ -79,7 +78,6 @@ export default class UserTicketChat {
           this.ticketService.markUserRead(ticketId).subscribe({ error: () => {} }),
         );
       },
-      { allowSignalWrites: true },
     );
 
     effect(
@@ -97,7 +95,6 @@ export default class UserTicketChat {
           all.filter((r) => r.ticket_id !== ticketId),
         );
       },
-      { allowSignalWrites: true },
     );
   }
 
