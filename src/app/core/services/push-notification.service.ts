@@ -8,7 +8,7 @@ import { firstValueFrom } from 'rxjs';
 export class PushNotificationService {
   private swPush = inject(SwPush);
   private http = inject(HttpClient);
-  private readonly vapidPublicKey = 'BHALT4ft_u-Ori_gGypW4D7orL_SiY9mHaqUHbrNnyY6XSlY52qtqMLzFiB-jyB5OL0v7yCtNptElgVmE7YALhQ';
+  private readonly vapidPublicKey = 'BPeXMBPTWF2ogmLhjpd2c0ADEX_T93lttvrq_GZ6MuESQ3J9ohM2V0mqnIvEZdlRbLKt_g_UqPfXjwTDXm992uM';
   private readonly apiUrl = 'http://localhost:3000/push';
 
   async subscribeToNotifications(): Promise<void> {
