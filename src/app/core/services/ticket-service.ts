@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { effect, inject, Injectable, NgZone, PLATFORM_ID, signal } from '@angular/core';
 import { first, Observable, Subject, takeUntil } from 'rxjs';
 import { Ticket } from '../models/ticket.model';
 import { TicketComment } from '../models/ticket-comment.model';
@@ -38,9 +38,8 @@ export class TicketService {
   private state = signal({ ticket: new Map<number, Ticket>() });
   private platformId = inject(PLATFORM_ID);
 
-  // Referencia al EventSource activo para poder cerrarlo
-  private eventSource: EventSource | null = null;
-
+  private abortController: AbortController | null = null;
+  private zone = inject(NgZone);
   private webNotif = inject(WebNotificationService);
 
   constructor() {
@@ -51,57 +50,77 @@ export class TicketService {
         return;
       }
       this.loadData();
-      this.conectarSSE(user.id); // abre la conexión SSE al iniciar sesión
+      this.conectarSSE();
     });
   }
 
   // ─── SSE ────────────────────────────────────────────────────
 
-  private conectarSSE(userId: number): void {
-    // Cierra conexión anterior si existía (ej: cambio de usuario)
+  private conectarSSE(): void {
     this.desconectarSSE();
 
-    let token = undefined;
+    let token: string | null = null;
     if (isPlatformBrowser(this.platformId)) {
-      token = localStorage.getItem('access_token'); // mismo key que el interceptor
+      token = localStorage.getItem('access_token');
     }
-    if (!token) return; // no hay sesión activa
+    if (!token) return;
 
-    const url = `${this.baseUrl}/events?userId=${userId}&token=${token}`;
-    this.eventSource = new EventSource(url);
+    this.abortController = new AbortController();
+    const signal = this.abortController.signal;
 
-    this.eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'new_comment') {
-        const comment = data.comment as TicketComment;
-        this.pendingComments.update((prev) => [...prev, comment]);
-        const ticket = this.state().ticket.get(comment.ticket_id);
-        if (ticket?.code) {
-          this.webNotif.notify(
-            'Nuevo mensaje',
-            `Recibiste un mensaje en tu solicitud ${ticket.code}`,
-            `/panel/solicitud/${ticket.code}/chat`,
-          );
-        }
-        return;
+    fetch(`${this.baseUrl}/events`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal,
+    }).then((res) => {
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      const read = () =>
+        reader.read().then(({ done, value }) => {
+          if (done || signal.aborted) return;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+          for (const line of lines) {
+            if (!line.startsWith('data:')) continue;
+            try {
+              const data = JSON.parse(line.slice(5).trim());
+              this.zone.run(() => this.handleSseEvent(data));
+            } catch {}
+          }
+          read();
+        });
+
+      read();
+    }).catch(() => {});
+  }
+
+  private handleSseEvent(data: any): void {
+    if (data.type === 'new_comment') {
+      const comment = data.comment as TicketComment;
+      this.pendingComments.update((prev) => [...prev, comment]);
+      const ticket = this.state().ticket.get(comment.ticket_id);
+      if (ticket?.code) {
+        this.webNotif.notify(
+          'Nuevo mensaje',
+          `Recibiste un mensaje en tu solicitud ${ticket.code}`,
+          `/panel/solicitud/${ticket.code}/chat`,
+        );
       }
-      if (data.type === 'messages_read') {
-        this.pendingReadReceipts.update((prev) => [...prev, { ticket_id: data.ticket_id }]);
-        return;
-      }
-      this.manejarEventoEstado(data as TicketStateEvent);
-    };
-
-    this.eventSource.onerror = () => {
-      // EventSource reconecta automáticamente — no hacemos nada aquí.
-      // Si quisieras mostrar un indicador de "sin conexión", este es el lugar.
-    };
+      return;
+    }
+    if (data.type === 'messages_read') {
+      this.pendingReadReceipts.update((prev) => [...prev, { ticket_id: data.ticket_id }]);
+      return;
+    }
+    this.manejarEventoEstado(data as TicketStateEvent);
   }
 
   private desconectarSSE(): void {
-    if (this.eventSource) {
-      this.eventSource.close();
-      this.eventSource = null;
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
     }
   }
 
