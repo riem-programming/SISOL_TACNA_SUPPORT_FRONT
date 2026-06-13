@@ -1,4 +1,4 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { inject, Injectable, NgZone, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AdminTicket } from '../models/admin-ticket.model';
 import { TicketComment } from '../../../core/models/ticket-comment.model';
@@ -6,7 +6,7 @@ import { TicketComment } from '../../../core/models/ticket-comment.model';
 @Injectable({ providedIn: 'root' })
 export class AdminSseService implements OnDestroy {
   private abortController: AbortController | null = null;
-  private zone = new NgZone({ enableLongStackTrace: false });
+  private zone = inject(NgZone);
 
   readonly newTicket$ = new Subject<AdminTicket>();
   readonly deletedTicketId$ = new Subject<number>();
