@@ -6,7 +6,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./features/auth/auth'),
-    title: 'Inicio de sesión',
+    title: 'Iniciar sesión',
     canActivate: [loggedInGuard],
   },
   {

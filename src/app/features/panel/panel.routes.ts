@@ -11,7 +11,7 @@ const PANEL_ROUTES: Routes = [
         path: '',
         component: Home,
         pathMatch: 'full',
-        title: 'Soporte',
+        title: 'Inicio',
       },
       {
         path: 'crear-solicitud',
@@ -26,7 +26,7 @@ const PANEL_ROUTES: Routes = [
       {
         path: 'solicitud/:code/chat',
         loadComponent: () => import('./pages/user-ticket-chat/user-ticket-chat'),
-        title: 'Chat de soporte',
+        title: 'Chat',
       },
       {
         path: 'solicitud/:code',

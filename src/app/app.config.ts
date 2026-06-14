@@ -1,4 +1,6 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { TitleStrategy } from '@angular/router';
+import { AppTitleStrategy } from './core/title-strategy';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -18,6 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     // Use Material Symbols Rounded (variable font) as the default icon set
     { provide: MAT_ICON_DEFAULT_OPTIONS, useValue: { fontSet: 'material-symbols-rounded' } },
+    { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideServiceWorker('ngsw-worker.js', {
       enabled: true,
       registrationStrategy: 'registerImmediately',
