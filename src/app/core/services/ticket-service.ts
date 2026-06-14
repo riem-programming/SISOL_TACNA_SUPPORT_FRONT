@@ -7,6 +7,7 @@ import { CurrentUserService } from './current-user-service';
 import { platformBrowser } from '@angular/platform-browser';
 import { isPlatformBrowser } from '@angular/common';
 import { WebNotificationService } from './web-notification-service';
+import { environment } from '../../../environments/environment';
 
 export interface TicketStateEvent {
   ticket_id: number;
@@ -17,7 +18,7 @@ export interface TicketStateEvent {
   providedIn: 'root',
 })
 export class TicketService {
-  private readonly baseUrl = 'http://localhost:3000/ticket';
+  private readonly baseUrl = `${environment.apiUrl}/ticket`;
   private http = inject(HttpClient);
   private currentUserService = inject(CurrentUserService);
 
@@ -217,17 +218,17 @@ export class TicketService {
   }
 
   getComments(ticketId: number): Observable<TicketComment[]> {
-    return this.http.get<TicketComment[]>(`http://localhost:3000/ticket-comment/${ticketId}`);
+    return this.http.get<TicketComment[]>(`${environment.apiUrl}/ticket-comment/${ticketId}`);
   }
 
   sendComment(ticketId: number, message: string): Observable<TicketComment> {
-    return this.http.post<TicketComment>('http://localhost:3000/ticket-comment', {
+    return this.http.post<TicketComment>(`${environment.apiUrl}/ticket-comment`, {
       ticket_id: ticketId,
       message,
     });
   }
 
   markUserRead(ticketId: number): Observable<void> {
-    return this.http.patch<void>(`http://localhost:3000/ticket-comment/${ticketId}/read`, {});
+    return this.http.patch<void>(`${environment.apiUrl}/ticket-comment/${ticketId}/read`, {});
   }
 }

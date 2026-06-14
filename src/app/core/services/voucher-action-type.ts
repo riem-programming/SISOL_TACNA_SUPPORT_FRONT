@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { first, Subject, takeUntil } from 'rxjs';
 import { VoucherActionType } from '../models/voucherActionType.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VoucherActionTypeService {
-  private readonly baseUrl = 'http://localhost:3000/voucher-action-type';
+  private readonly baseUrl = `${environment.apiUrl}/voucher-action-type`;
   private http = inject(HttpClient);
   readonly loading = signal(false);
   private onDestroy = new Subject<void>();

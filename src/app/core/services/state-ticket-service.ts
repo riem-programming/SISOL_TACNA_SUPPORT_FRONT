@@ -2,12 +2,13 @@ import { inject, Injectable, signal } from '@angular/core';
 import { StateTicket } from '../models/stateTicket.model';
 import { first, Subject, takeUntil } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StateTicketService {
-  private readonly baseUrl = 'http://localhost:3000/state';
+  private readonly baseUrl = `${environment.apiUrl}/state`;
   private http = inject(HttpClient);
   readonly loading = signal(false);
   private onDestroy = new Subject<void>();

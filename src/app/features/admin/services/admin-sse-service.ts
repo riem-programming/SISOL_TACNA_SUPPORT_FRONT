@@ -2,6 +2,7 @@ import { inject, Injectable, NgZone, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AdminTicket } from '../models/admin-ticket.model';
 import { TicketComment } from '../../../core/models/ticket-comment.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AdminSseService implements OnDestroy {
@@ -19,7 +20,7 @@ export class AdminSseService implements OnDestroy {
     this.abortController = new AbortController();
     const signal = this.abortController.signal;
 
-    fetch('http://localhost:3000/ticket/admin/events', {
+    fetch(`${environment.apiUrl}/ticket/admin/events`, {
       headers: { 'x-admin-key': key },
       signal,
     }).then((res) => {

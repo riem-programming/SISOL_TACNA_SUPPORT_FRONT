@@ -2,11 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { AdminTicket } from '../models/admin-ticket.model';
 import { TicketComment } from '../../../core/models/ticket-comment.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:3000';
+  private readonly baseUrl = `${environment.apiUrl}`;
 
   private adminHeaders() {
     return { 'x-admin-key': sessionStorage.getItem('admin_key') ?? '' };

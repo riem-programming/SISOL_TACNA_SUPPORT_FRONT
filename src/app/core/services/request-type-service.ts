@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { RequestType } from '../models/requestType.model';
 import { first, Subject, takeUntil } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RequestTypeService {
-  private readonly baseUrl = 'http://localhost:3000/request-type';
+  private readonly baseUrl = `${environment.apiUrl}/request-type`;
   private http = inject(HttpClient);
   readonly loading = signal(false);
   private onDestroy = new Subject<void>();

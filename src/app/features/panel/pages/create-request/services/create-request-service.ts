@@ -17,12 +17,13 @@ import { createCreateUserRequestAdapter } from '../adapters/form-to-create-user-
 import { CreateUserRequest } from '../../../../../core/models/createUserRequest.model';
 import { createTicketReassignRequestAdapter } from '../adapters/form-to-ticket-reassign.adapter';
 import { CreateTicketReassignRequest } from '../model/create-request.model';
+import { environment } from '../../../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CreateRequestService {
-  private readonly baseUrl = 'http://localhost:3000';
+  private readonly baseUrl = `${environment.apiUrl}`;
   private http = inject(HttpClient);
   readonly loading = signal(false);
   private onDestroy = new Subject<void>();

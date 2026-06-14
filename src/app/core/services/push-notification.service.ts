@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { SwPush } from '@angular/service-worker';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PushNotificationService {
   private swPush = inject(SwPush);
   private http = inject(HttpClient);
   private readonly vapidPublicKey = 'BPeXMBPTWF2ogmLhjpd2c0ADEX_T93lttvrq_GZ6MuESQ3J9ohM2V0mqnIvEZdlRbLKt_g_UqPfXjwTDXm992uM';
-  private readonly apiUrl = 'http://localhost:3000/push';
+  private readonly apiUrl = `${environment.apiUrl}/push`;
 
   async subscribeToNotifications(): Promise<void> {
     if (!this.swPush.isEnabled) return;

@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SupportMode } from '../models/supportMode.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SupportModeService {
-  private readonly baseUrl = 'http://localhost:3000/support-mode';
+  private readonly baseUrl = `${environment.apiUrl}/support-mode`;
   private http = inject(HttpClient);
   readonly loading = signal(false);
   private onDestroy = new Subject<void>();

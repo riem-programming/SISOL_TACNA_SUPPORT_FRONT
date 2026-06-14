@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, catchError, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface ResponseAttachment {
   url: string;
@@ -10,7 +11,7 @@ export interface ResponseAttachment {
   providedIn: 'root',
 })
 export class TicketAttachmentService {
-  private readonly baseUrl = 'http://localhost:3000/voucher-request';
+  private readonly baseUrl = `${environment.apiUrl}/voucher-request`;
   private http = inject(HttpClient);
 
   readonly loading = signal(false);

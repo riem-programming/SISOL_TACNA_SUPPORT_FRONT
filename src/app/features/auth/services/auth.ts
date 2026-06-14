@@ -4,12 +4,13 @@ import { catchError, finalize, map, Observable, of } from 'rxjs';
 import { ApiResult } from '../../../core/models/apiResult.model';
 import { AuthResponse } from '../model/auth.model';
 import { ErrorResponse } from '../../../core/models/error.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly baseUrl = 'http://localhost:3000/user';
+  private readonly baseUrl = `${environment.apiUrl}/user`;
   private http = inject(HttpClient);
   loading = signal<boolean>(false);
 

@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { first, Subject, takeUntil } from 'rxjs';
 import { ContractType } from '../models/contractType.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContractTypeService {
-  private readonly baseUrl = 'http://localhost:3000/contract-type';
+  private readonly baseUrl = `${environment.apiUrl}/contract-type`;
   private http = inject(HttpClient);
   readonly loading = signal(false);
   private onDestroy = new Subject<void>();

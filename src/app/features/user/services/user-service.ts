@@ -3,12 +3,13 @@ import { inject, Injectable, signal } from '@angular/core';
 import { catchError, finalize, map, of } from 'rxjs';
 import { ErrorResponse } from '../../../core/models/error.model';
 import { User } from '../model/user.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private readonly baseUrl = 'http://localhost:3000/user';
+  private readonly baseUrl = `${environment.apiUrl}/user`;
   private http = inject(HttpClient);
   loadingGetById = signal<boolean>(false);
 
