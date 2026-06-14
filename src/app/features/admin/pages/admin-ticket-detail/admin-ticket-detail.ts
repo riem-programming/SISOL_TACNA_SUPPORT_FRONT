@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JsonPipe } from '@angular/common';
@@ -34,15 +34,17 @@ export default class AdminTicketDetail implements OnInit {
   ticket = signal<AdminTicket | null>(null);
   loading = signal(true);
 
-  readonly states: StateTicket[] = this.stateService
-    .getAll()
-    .filter((s) => s.is_active)
-    .sort((a, b) => {
-      if (a.flow_order === null && b.flow_order === null) return 0;
-      if (a.flow_order === null) return 1;
-      if (b.flow_order === null) return -1;
-      return a.flow_order - b.flow_order;
-    });
+  readonly states = computed(() =>
+    this.stateService
+      .getAll()
+      .filter((s) => s.is_active)
+      .sort((a, b) => {
+        if (a.flow_order === null && b.flow_order === null) return 0;
+        if (a.flow_order === null) return 1;
+        if (b.flow_order === null) return -1;
+        return a.flow_order - b.flow_order;
+      })
+  );
 
   moving = signal(false);
   attachmentLoading = signal(false);

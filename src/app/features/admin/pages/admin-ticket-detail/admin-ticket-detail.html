@@ -36,7 +36,7 @@
       </div>
 
       <!-- Mover a otro estado -->
-      @if (states.length > 0) {
+      @if (states().length > 0) {
         <mat-divider />
         <div class="state-move-section">
           <p class="section-title">
@@ -44,7 +44,7 @@
             Mover a
           </p>
           <div class="state-chips">
-            @for (state of states; track state.id) {
+            @for (state of states(); track state.id) {
               <button
                 class="state-chip"
                 [class.state-chip--active]="state.id === t.state_id"
