@@ -8,7 +8,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +26,7 @@ import { TicketComment } from '../../../../core/models/ticket-comment.model';
 export default class AdminTicketChat implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private location = inject(Location);
+  private router = inject(Router);
   private adminService = inject(AdminService);
   private sseService = inject(AdminSseService);
 
@@ -82,7 +83,12 @@ export default class AdminTicketChat implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.location.back();
+    const navId = (window.history.state as { navigationId?: number })?.navigationId;
+    if (navId && navId > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/admin/ticket', this.ticketId()]);
+    }
   }
 
   onInput(event: Event): void {

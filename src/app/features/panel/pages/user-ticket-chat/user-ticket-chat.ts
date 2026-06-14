@@ -10,6 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -27,6 +28,7 @@ export default class UserTicketChat {
   private ticketService = inject(TicketService);
   private requestTypeService = inject(RequestTypeService);
   private location = inject(Location);
+  private router = inject(Router);
 
   @ViewChild('threadRef') private threadRef?: ElementRef<HTMLElement>;
   @ViewChild('chatInput') private chatInputRef?: ElementRef<HTMLTextAreaElement>;
@@ -99,7 +101,12 @@ export default class UserTicketChat {
   }
 
   goBack(): void {
-    this.location.back();
+    const navId = (window.history.state as { navigationId?: number })?.navigationId;
+    if (navId && navId > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/panel/solicitud', this.code()]);
+    }
   }
 
   onInput(event: Event): void {

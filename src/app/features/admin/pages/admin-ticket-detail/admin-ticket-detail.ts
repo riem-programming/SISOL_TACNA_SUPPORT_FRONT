@@ -74,7 +74,8 @@ export default class AdminTicketDetail implements OnInit {
   }
 
   goBack(): void {
-    if (window.history.length > 1) {
+    const navId = (window.history.state as { navigationId?: number })?.navigationId;
+    if (navId && navId > 1) {
       this.location.back();
     } else {
       this.router.navigate(['/admin/board']);
