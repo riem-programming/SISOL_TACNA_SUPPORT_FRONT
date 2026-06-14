@@ -72,7 +72,11 @@ export default class AdminTicketDetail implements OnInit {
   }
 
   goBack(): void {
-    this.location.back();
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/admin/board']);
+    }
   }
 
   formatFullDate(value: Date): string {
@@ -100,7 +104,10 @@ export default class AdminTicketDetail implements OnInit {
     if (!ticket || state.id === ticket.state_id || this.moving()) return;
     this.moving.set(true);
     this.adminService.updateTicketState(ticket.id, state.id).subscribe({
-      next: () => this.goBack(),
+      next: () => {
+        this.ticket.update(t => t ? { ...t, state_id: state.id, state } : null);
+        this.moving.set(false);
+      },
       error: () => this.moving.set(false),
     });
   }
