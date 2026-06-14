@@ -7,6 +7,7 @@ import { environment } from '../../../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class AdminSseService implements OnDestroy {
   private abortController: AbortController | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private zone = inject(NgZone);
 
   readonly newTicket$ = new Subject<AdminTicket>();
@@ -33,7 +34,7 @@ export class AdminSseService implements OnDestroy {
           if (signal.aborted) return;
           if (done) {
             this.abortController = null;
-            setTimeout(() => this.connect(), 3000);
+            this.reconnectTimer = setTimeout(() => this.connect(), 3000);
             return;
           }
           buffer += decoder.decode(value, { stream: true });
@@ -50,7 +51,7 @@ export class AdminSseService implements OnDestroy {
         }).catch(() => {
           if (!signal.aborted) {
             this.abortController = null;
-            setTimeout(() => this.connect(), 3000);
+            this.reconnectTimer = setTimeout(() => this.connect(), 3000);
           }
         });
 
@@ -58,7 +59,7 @@ export class AdminSseService implements OnDestroy {
     }).catch(() => {
       if (!signal.aborted) {
         this.abortController = null;
-        setTimeout(() => this.connect(), 3000);
+        this.reconnectTimer = setTimeout(() => this.connect(), 3000);
       }
     });
   }
@@ -72,6 +73,10 @@ export class AdminSseService implements OnDestroy {
   }
 
   disconnect(): void {
+    if (this.reconnectTimer !== null) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
     this.abortController?.abort();
     this.abortController = null;
   }
