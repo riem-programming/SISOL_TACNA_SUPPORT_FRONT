@@ -116,14 +116,6 @@ export class TicketService {
     if (data.type === 'new_comment') {
       const comment = data.comment as TicketComment;
       this.pendingComments.update((prev) => [...prev, comment]);
-      const ticket = this.state().ticket.get(comment.ticket_id);
-      if (ticket?.code) {
-        this.webNotif.notify(
-          'Nuevo mensaje',
-          `Recibiste un mensaje en tu solicitud ${ticket.code}`,
-          `/panel/solicitud/${ticket.code}/chat`,
-        );
-      }
       return;
     }
     if (data.type === 'messages_read') {
@@ -152,13 +144,7 @@ export class TicketService {
     // 2. Agrega notificación pendiente para badge/toast (igual que antes)
     this.pendingNotifications.update((prev) => [...prev, data]);
 
-    // 3. Notificación del sistema operativo + sonido
-    const nombre = ticket?.code ?? `#${data.ticket_id}`;
-    this.webNotif.notify(
-      'Actualización de solicitud',
-      `Tu ticket ${nombre} cambió de estado`,
-      `/panel/solicitud/${ticket?.code}`,
-    );
+    // push notification is sent by the backend — no duplicate web notification needed here
   }
 
   // Llama esto cuando el usuario "vio" las notificaciones
