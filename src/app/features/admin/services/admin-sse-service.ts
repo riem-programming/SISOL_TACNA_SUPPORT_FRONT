@@ -16,7 +16,7 @@ export class AdminSseService implements OnDestroy {
 
   connect(): void {
     if (this.abortController) return;
-    const key = sessionStorage.getItem('admin_key') ?? '';
+    const key = localStorage.getItem('admin_key') ?? '';
     this.abortController = new AbortController();
     const signal = this.abortController.signal;
 

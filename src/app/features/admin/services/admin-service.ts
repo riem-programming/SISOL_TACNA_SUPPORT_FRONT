@@ -10,7 +10,7 @@ export class AdminService {
   private readonly baseUrl = `${environment.apiUrl}`;
 
   private adminHeaders() {
-    return { 'x-admin-key': sessionStorage.getItem('admin_key') ?? '' };
+    return { 'x-admin-key': localStorage.getItem('admin_key') ?? '' };
   }
 
   verifyKey(key: string) {
