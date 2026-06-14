@@ -79,7 +79,12 @@ export class TicketService {
 
       const read = () =>
         reader.read().then(({ done, value }) => {
-          if (done || signal.aborted) return;
+          if (signal.aborted) return;
+          if (done) {
+            this.abortController = null;
+            setTimeout(() => this.conectarSSE(), 3000);
+            return;
+          }
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
           buffer = lines.pop() ?? '';
@@ -91,10 +96,20 @@ export class TicketService {
             } catch {}
           }
           read();
+        }).catch(() => {
+          if (!signal.aborted) {
+            this.abortController = null;
+            setTimeout(() => this.conectarSSE(), 3000);
+          }
         });
 
       read();
-    }).catch(() => {});
+    }).catch(() => {
+      if (!signal.aborted) {
+        this.abortController = null;
+        setTimeout(() => this.conectarSSE(), 3000);
+      }
+    });
   }
 
   private handleSseEvent(data: any): void {

@@ -30,7 +30,12 @@ export class AdminSseService implements OnDestroy {
 
       const read = () =>
         reader.read().then(({ done, value }) => {
-          if (done || signal.aborted) return;
+          if (signal.aborted) return;
+          if (done) {
+            this.abortController = null;
+            setTimeout(() => this.connect(), 3000);
+            return;
+          }
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
           buffer = lines.pop() ?? '';
@@ -42,10 +47,20 @@ export class AdminSseService implements OnDestroy {
             } catch {}
           }
           read();
+        }).catch(() => {
+          if (!signal.aborted) {
+            this.abortController = null;
+            setTimeout(() => this.connect(), 3000);
+          }
         });
 
       read();
-    }).catch(() => {});
+    }).catch(() => {
+      if (!signal.aborted) {
+        this.abortController = null;
+        setTimeout(() => this.connect(), 3000);
+      }
+    });
   }
 
   private dispatch(payload: any): void {
