@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TicketService } from '../../../../core/services/ticket-service';
@@ -36,7 +37,7 @@ export class ConfirmDeleteDialog {
 
 @Component({
   selector: 'app-ticket-detail',
-  imports: [MatIconModule, MatButtonModule, MatDialogModule, RouterLink, StatusTimeline],
+  imports: [MatIconModule, MatButtonModule, MatBadgeModule, MatDialogModule, RouterLink, StatusTimeline],
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.css',
 })

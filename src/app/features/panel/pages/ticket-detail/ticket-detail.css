@@ -190,7 +190,7 @@
   gap: 0.75rem;
 }
 
-/* Timeline collapsible — toggle visible only on mobile */
+/* Timeline collapsible */
 .timeline-header {
   display: flex;
   align-items: center;
@@ -203,7 +203,7 @@
 }
 
 .timeline-toggle {
-  display: none;
+  display: inline-flex;
   align-items: center;
   gap: 2px;
   padding: 4px 10px 4px 12px;
@@ -219,14 +219,8 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 639px) {
-  .timeline-toggle {
-    display: inline-flex;
-  }
-
-  .timeline-body-collapsed {
-    display: none;
-  }
+.timeline-body-collapsed {
+  display: none;
 }
 
 /* Closed-state CTA banner */
@@ -253,40 +247,12 @@
   text-underline-offset: 2px;
 }
 
-/* Chat card — accented on desktop, hidden on mobile (FAB handles it) */
-.chat-card {
-  background: var(--mat-sys-primary-container);
-  border: 1.5px solid var(--mat-sys-primary);
-  border-radius: 16px;
-  padding: 20px 18px;
+/* Bottom padding so FAB never overlaps the last card */
+.pb-mobile-fab {
+  padding-bottom: 96px !important;
 }
 
-@media (min-width: 640px) {
-  .chat-card {
-    padding: 24px;
-  }
-}
-
-/* Mobile: hide the chat card, FAB takes over */
-@media (max-width: 639px) {
-  .chat-card {
-    display: none;
-  }
-}
-
-.chat-subtitle {
-  color: var(--mat-sys-on-primary-container);
-  opacity: 0.75;
-}
-
-/* Extra bottom padding on mobile so FAB doesn't overlap last card */
-@media (max-width: 639px) {
-  .pb-mobile-fab {
-    padding-bottom: 96px !important;
-  }
-}
-
-/* FAB — fixed bottom-right, mobile only */
+/* FAB — fixed bottom-right on all breakpoints */
 .chat-fab {
   position: fixed;
   bottom: 24px;
@@ -294,78 +260,9 @@
   z-index: 100;
 }
 
-@media (min-width: 640px) {
+/* On mobile, raise FAB above the bottom nav (~72px) */
+@media (max-width: 767px) {
   .chat-fab {
-    display: none;
+    bottom: 88px;
   }
-}
-
-.fab-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: var(--mat-sys-error);
-  color: var(--mat-sys-on-error);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chat-entry-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  color: inherit;
-  cursor: pointer;
-  padding: 4px 0;
-  min-height: 52px;
-  border-radius: 8px;
-  transition: background-color 0.15s;
-  text-align: left;
-}
-
-.chat-entry-row:hover {
-  background: var(--mat-sys-surface-container);
-}
-
-.chat-entry-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--mat-sys-primary);
-  color: var(--mat-sys-on-primary);
-  flex-shrink: 0;
-}
-
-.chat-unread-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--mat-sys-primary);
-  color: var(--mat-sys-on-primary);
-  font-size: 0.75rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.chat-entry-chevron {
-  color: var(--mat-sys-on-surface-variant);
-  flex-shrink: 0;
 }

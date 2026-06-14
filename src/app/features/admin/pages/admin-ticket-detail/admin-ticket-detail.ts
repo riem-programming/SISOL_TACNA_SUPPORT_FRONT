@@ -3,6 +3,7 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JsonPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -16,6 +17,7 @@ import { TicketComment } from '../../../../core/models/ticket-comment.model';
   selector: 'app-admin-ticket-detail',
   imports: [
     MatButtonModule,
+    MatBadgeModule,
     MatDividerModule,
     MatIconModule,
     MatProgressSpinnerModule,

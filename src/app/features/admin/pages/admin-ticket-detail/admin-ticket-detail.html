@@ -185,18 +185,6 @@
         </div>
       }
 
-      <!-- Chat -->
-      <mat-divider />
-      <div class="chat-action-row">
-        <button mat-flat-button (click)="openChat()" class="chat-btn">
-          <mat-icon>chat</mat-icon>
-          Chat
-          @if (unreadCount() > 0) {
-            <span class="chat-unread-badge">{{ unreadCount() }}</span>
-          }
-        </button>
-      </div>
-
       <!-- Datos crudos -->
       <mat-divider />
       <details class="raw-section">
@@ -214,3 +202,18 @@
     </div>
   }
 </div>
+
+<!-- FAB chat — fixed bottom-right -->
+@if (ticket()) {
+  <button
+    mat-fab
+    class="admin-chat-fab"
+    aria-label="Abrir chat"
+    [matBadge]="unreadCount() > 0 ? unreadCount() : null"
+    matBadgePosition="above after"
+    matBadgeColor="warn"
+    (click)="openChat()"
+  >
+    <mat-icon>forum</mat-icon>
+  </button>
+}
