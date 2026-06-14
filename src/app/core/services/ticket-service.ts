@@ -113,6 +113,7 @@ export class TicketService {
   }
 
   private handleSseEvent(data: any): void {
+    if (data.type === 'ping') return;
     if (data.type === 'new_comment') {
       const comment = data.comment as TicketComment;
       this.pendingComments.update((prev) => [...prev, comment]);

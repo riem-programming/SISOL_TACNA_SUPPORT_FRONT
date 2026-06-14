@@ -64,6 +64,7 @@ export class AdminSseService implements OnDestroy {
   }
 
   private dispatch(payload: any): void {
+    if (payload.type === 'ping') return;
     if (payload.type === 'new_ticket') this.newTicket$.next(payload.ticket);
     else if (payload.type === 'deleted_ticket') this.deletedTicketId$.next(payload.ticket_id);
     else if (payload.type === 'new_comment') this.newComment$.next(payload.comment);
