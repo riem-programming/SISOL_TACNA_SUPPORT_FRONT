@@ -69,7 +69,7 @@ export class TicketService {
     this.abortController = new AbortController();
     const signal = this.abortController.signal;
 
-    fetch(`${this.baseUrl}/events`, {
+    fetch(`${this.baseUrl}/events?ngsw-bypass`, {
       headers: { Authorization: `Bearer ${token}` },
       signal,
     }).then((res) => {

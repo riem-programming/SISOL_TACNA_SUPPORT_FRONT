@@ -20,7 +20,7 @@ export class AdminSseService implements OnDestroy {
     this.abortController = new AbortController();
     const signal = this.abortController.signal;
 
-    fetch(`${environment.apiUrl}/ticket/admin/events`, {
+    fetch(`${environment.apiUrl}/ticket/admin/events?ngsw-bypass`, {
       headers: { 'x-admin-key': key },
       signal,
     }).then((res) => {
