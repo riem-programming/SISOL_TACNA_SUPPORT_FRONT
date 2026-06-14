@@ -85,9 +85,16 @@ export default class TicketDetail {
   ticketHistory = signal<HistoryTicketState[]>([]);
 
   deleting = signal(false);
+  timelineExpanded = signal(false);
+
   canEdit = computed(() => {
     const stateCode = this.state()?.code;
     return stateCode === 'open';
+  });
+
+  isTerminalState = computed(() => {
+    const code = this.state()?.code;
+    return code === 'finished' || code === 'error' || code === 'cancelled';
   });
 
   unreadCount = computed(() =>

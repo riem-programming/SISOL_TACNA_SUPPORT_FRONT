@@ -31,7 +31,7 @@
         </div>
       </div>
     } @else if (ticket(); as t) {
-      <div class="flex flex-col gap-4 pb-8">
+      <div class="flex flex-col gap-4 pb-8 pb-mobile-fab">
         <!-- ENCABEZADO -->
         <header class="detail-card">
           <div class="flex items-center gap-4">
@@ -52,10 +52,41 @@
           </div>
         </header>
 
+        <!-- MENSAJES — visible siempre arriba del fold en desktop, FAB cubre mobile -->
+        <section class="chat-card" aria-label="Mensajes de soporte">
+          <button type="button" class="chat-entry-row" (click)="openChat()">
+            <div class="chat-entry-icon">
+              <mat-icon>forum</mat-icon>
+            </div>
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
+              <span class="text-base font-semibold">Mensajes de soporte</span>
+              <span class="text-sm chat-subtitle">Comunicación directa con el equipo</span>
+            </div>
+            @if (unreadCount() > 0) {
+              <span class="chat-unread-badge" aria-label="{{ unreadCount() }} mensajes nuevos">{{ unreadCount() }}</span>
+            }
+            <mat-icon class="chat-entry-chevron" aria-hidden="true">chevron_right</mat-icon>
+          </button>
+        </section>
+
         <!-- LÍNEA DE TIEMPO -->
         <section class="detail-card" aria-labelledby="timeline-title">
-          <h2 id="timeline-title" class="section-title">¿En qué va mi solicitud?</h2>
-          <app-status-timeline [history]="ticketHistory()" />
+          <div class="timeline-header">
+            <h2 id="timeline-title" class="section-title">¿En qué va mi solicitud?</h2>
+            <button
+              type="button"
+              class="timeline-toggle"
+              [attr.aria-expanded]="timelineExpanded()"
+              aria-controls="timeline-body"
+              (click)="timelineExpanded.set(!timelineExpanded())"
+            >
+              {{ timelineExpanded() ? 'Ocultar' : 'Ver historial' }}
+              <mat-icon aria-hidden="true">{{ timelineExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </div>
+          <div id="timeline-body" [class.timeline-body-collapsed]="!timelineExpanded()">
+            <app-status-timeline [history]="ticketHistory()" />
+          </div>
         </section>
 
         <!-- DATOS DE LA SOLICITUD -->
@@ -79,7 +110,6 @@
               <dd>{{ formatFullDate(t.updateddAt) }}</dd>
             </div>
 
-            <!-- Adjunto del voucher (solo si existe voucherRequest) -->
             @if (ticket()?.voucherRequest) {
               <div class="data-row">
                 <dt>Archivo adjunto</dt>
@@ -105,23 +135,6 @@
           </dl>
         </section>
 
-        <!-- MENSAJES -->
-        <section class="detail-card">
-          <button type="button" class="chat-entry-row" (click)="openChat()">
-            <div class="chat-entry-icon">
-              <mat-icon>forum</mat-icon>
-            </div>
-            <div class="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
-              <span class="text-base font-semibold">Mensajes de soporte</span>
-              <span class="text-sm text-muted-foreground">Comunicación directa con el equipo</span>
-            </div>
-            @if (unreadCount() > 0) {
-              <span class="chat-unread-badge" aria-label="{{ unreadCount() }} mensajes nuevos">{{ unreadCount() }}</span>
-            }
-            <mat-icon class="chat-entry-chevron" aria-hidden="true">chevron_right</mat-icon>
-          </button>
-        </section>
-
         <!-- ACCIONES -->
         @if (canEdit()) {
           <div class="action-buttons">
@@ -139,11 +152,19 @@
           </div>
         }
 
-        <!-- Volver (persistente al final, no depende del gesto atrás) -->
-        <a routerLink="/panel/mis-solicitudes" class="back-button">
-          <mat-icon aria-hidden="true">arrow_back</mat-icon>
-          Volver a mis solicitudes
-        </a>
+        <!-- CTA cuando el ticket está en estado terminal -->
+        @if (isTerminalState()) {
+          <div class="closed-cta" role="note">
+            <mat-icon class="closed-cta-icon" aria-hidden="true">info</mat-icon>
+            <div class="flex flex-col gap-1">
+              <p class="text-base font-semibold">Tu solicitud fue cerrada</p>
+              <p class="text-sm text-muted-foreground">
+                ¿Necesitás más ayuda?
+                <a routerLink="/panel/crear-solicitud" class="cta-link">Creá una nueva solicitud</a>.
+              </p>
+            </div>
+          </div>
+        }
       </div>
     } @else {
       <!-- NO ENCONTRADO -->
@@ -159,3 +180,18 @@
     }
   </div>
 </section>
+
+<!-- FAB chat — solo mobile, fixed bottom-right -->
+@if (ticket()) {
+  <button
+    mat-fab
+    class="chat-fab"
+    aria-label="Abrir mensajes de soporte"
+    (click)="openChat()"
+  >
+    <mat-icon>forum</mat-icon>
+    @if (unreadCount() > 0) {
+      <span class="fab-badge" aria-hidden="true">{{ unreadCount() }}</span>
+    }
+  </button>
+}
