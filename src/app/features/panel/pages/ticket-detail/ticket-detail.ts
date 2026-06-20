@@ -164,15 +164,8 @@ export default class TicketDetail {
     return map[priorityCode ?? ''] ?? 'dot-low';
   }
 
-  formatFullDate(value: Date): string {
-    return new Date(value).toLocaleDateString('es-PE', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  formatRoles(roles?: { long_name: string }[]): string {
+    return roles?.length ? roles.map((r) => r.long_name).join(', ') : '—';
   }
 
   confirmDelete(): void {

@@ -76,24 +76,15 @@
         <section class="detail-card" aria-labelledby="data-title">
           <h2 id="data-title" class="section-title">Datos de la solicitud</h2>
           <dl class="data-list">
-            <div class="data-row">
-              <dt>Tipo de solicitud</dt>
-              <dd>{{ requestType()?.long_name }}</dd>
-            </div>
-            <div class="data-row">
-              <dt>Prioridad</dt>
-              <dd>{{ priority()?.emoji }} {{ priority()?.long_name }}</dd>
-            </div>
-            <div class="data-row">
-              <dt>Fecha de creación</dt>
-              <dd>{{ formatFullDate(t.createdAt) }}</dd>
-            </div>
-            <div class="data-row">
-              <dt>Última actualización</dt>
-              <dd>{{ formatFullDate(t.updateddAt) }}</dd>
-            </div>
-
-            @if (ticket()?.voucherRequest) {
+            @if (ticket()?.voucherRequest; as voucherRequest) {
+              <div class="data-row">
+                <dt>Código de comprobante</dt>
+                <dd>{{ voucherRequest.voucher_code || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Especialidad</dt>
+                <dd>{{ voucherRequest.speciality || '—' }}</dd>
+              </div>
               <div class="data-row">
                 <dt>Archivo adjunto</dt>
                 <dd>
@@ -113,6 +104,67 @@
                     <span class="attachment-empty">Sin adjunto disponible</span>
                   }
                 </dd>
+              </div>
+            }
+
+            @if (ticket()?.technicalSupportRequest; as technicalSupportRequest) {
+              <div class="data-row">
+                <dt>Oficina</dt>
+                <dd>{{ technicalSupportRequest.office_number || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Descripción del problema</dt>
+                <dd>{{ technicalSupportRequest.problem_description || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Teléfono de contacto</dt>
+                <dd>{{ technicalSupportRequest.contact_phone || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Código Anydesk</dt>
+                <dd>{{ technicalSupportRequest.anydesk_code || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Fecha preferida de atención</dt>
+                <dd>{{ technicalSupportRequest.preferred_support_date || '—' }}</dd>
+              </div>
+            }
+
+            @if (ticket()?.ticketReassignRequest; as ticketReassignRequest) {
+              <div class="data-row">
+                <dt>Tickets relacionados</dt>
+                <dd>{{ ticketReassignRequest.ticket_numbers.join(', ') || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Nuevo responsable</dt>
+                <dd>{{ ticketReassignRequest.new_responsible || '—' }}</dd>
+              </div>
+            }
+
+            @if (ticket()?.createUserRequest; as createUserRequest) {
+              <div class="data-row">
+                <dt>Nombre completo</dt>
+                <dd>{{ createUserRequest.first_names }} {{ createUserRequest.last_names }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Documento</dt>
+                <dd>{{ createUserRequest.document_number || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Cargo</dt>
+                <dd>{{ createUserRequest.position || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Tipo de documento</dt>
+                <dd>{{ createUserRequest.document_type?.long_name || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Tipo de contrato</dt>
+                <dd>{{ createUserRequest.contract_type?.long_name || '—' }}</dd>
+              </div>
+              <div class="data-row">
+                <dt>Roles del sistema</dt>
+                <dd>{{ formatRoles(createUserRequest.system_roles) }}</dd>
               </div>
             }
           </dl>

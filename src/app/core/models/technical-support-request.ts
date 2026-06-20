@@ -7,8 +7,8 @@ export interface TechnicalSupportRequest {
   ticket: Ticket;
   support_mode_id: number;
   supportMode: SupportMode;
-  speciality: null;
-  office_number: null;
+  speciality: string | null;
+  office_number: string | null;
   problem_description: string;
   contact_phone: string;
   anydesk_code: string;

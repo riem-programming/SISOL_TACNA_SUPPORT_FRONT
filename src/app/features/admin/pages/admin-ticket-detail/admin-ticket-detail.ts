@@ -134,4 +134,8 @@ export default class AdminTicketDetail implements OnInit {
     if (!ticket) return;
     this.router.navigate(['admin/ticket', ticket.id, 'chat']);
   }
+
+  formatRoles(roles?: { long_name: string }[]): string {
+    return roles?.length ? roles.map((r) => r.long_name).join(', ') : '—';
+  }
 }

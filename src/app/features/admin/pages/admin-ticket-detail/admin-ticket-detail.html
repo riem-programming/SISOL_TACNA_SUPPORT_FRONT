@@ -114,6 +114,20 @@
             <span class="info-label">Cargo</span>
             <span class="info-value">{{ t.createUserRequest.position }}</span>
           </div>
+          <div class="info-item">
+            <span class="info-label">Tipo de documento</span>
+            <span class="info-value">{{ t.createUserRequest.document_type?.long_name || '—' }}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Tipo de contrato</span>
+            <span class="info-value">{{ t.createUserRequest.contract_type?.long_name || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Roles del sistema</span>
+            <span class="info-value">{{ formatRoles(t.createUserRequest.system_roles) }}</span>
+          </div>
         </div>
       }
 
@@ -165,22 +179,47 @@
         </h3>
         <div class="info-row">
           <div class="info-item">
-            <span class="info-label">Descripción del problema</span>
-            <span class="info-value">{{ t.technicalSupportRequest.problem_description || '—' }}</span>
+            <span class="info-label">Oficina</span>
+            <span class="info-value">{{ t.technicalSupportRequest.office_number || '—' }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Teléfono de contacto</span>
-            <span class="info-value">{{ t.technicalSupportRequest.contact_phone || '—' }}</span>
+            <span class="info-label">Descripción del problema</span>
+            <span class="info-value">{{ t.technicalSupportRequest.problem_description || '—' }}</span>
           </div>
         </div>
         <div class="info-row">
           <div class="info-item">
+            <span class="info-label">Teléfono de contacto</span>
+            <span class="info-value">{{ t.technicalSupportRequest.contact_phone || '—' }}</span>
+          </div>
+          <div class="info-item">
             <span class="info-label">Código Anydesk</span>
             <span class="info-value mono">{{ t.technicalSupportRequest.anydesk_code || '—' }}</span>
           </div>
+        </div>
+        <div class="info-row">
           <div class="info-item">
             <span class="info-label">Fecha preferida</span>
             <span class="info-value">{{ t.technicalSupportRequest.preferred_support_date || '—' }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Cambio de responsable -->
+      @if (t.ticketReassignRequest) {
+        <mat-divider />
+        <h3 class="section-title">
+          <mat-icon>swap_horiz</mat-icon>
+          Cambio de responsable
+        </h3>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Tickets relacionados</span>
+            <span class="info-value">{{ t.ticketReassignRequest.ticket_numbers.join(', ') || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Nuevo responsable</span>
+            <span class="info-value">{{ t.ticketReassignRequest.new_responsible || '—' }}</span>
           </div>
         </div>
       }

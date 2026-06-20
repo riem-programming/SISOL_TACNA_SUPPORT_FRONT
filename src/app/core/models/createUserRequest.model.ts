@@ -23,5 +23,5 @@ export interface CreateUserRequest {
 
 export interface CreateUserRequestChildren extends Omit<
   CreateUserRequest,
-  'document_type' | 'contract_type' | 'system_roles'
+  'ticket'
 > {}

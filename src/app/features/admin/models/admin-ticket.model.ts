@@ -1,5 +1,6 @@
 import { CreateUserRequestChildren } from '../../../core/models/createUserRequest.model';
 import { TechnicalSupportRequestChildren } from '../../../core/models/technical-support-request';
+import { TicketReassignRequestChildren } from '../../../core/models/ticket-reassign-request.model';
 import { VoucherRequestChildren } from '../../../core/models/voucher-request.model';
 import { Priority } from '../../../core/models/priority.model';
 import { RequestType } from '../../../core/models/requestType.model';
@@ -28,4 +29,5 @@ export interface AdminTicket {
   createUserRequest?: CreateUserRequestChildren;
   voucherRequest?: VoucherRequestChildren;
   technicalSupportRequest?: TechnicalSupportRequestChildren;
+  ticketReassignRequest?: TicketReassignRequestChildren;
 }

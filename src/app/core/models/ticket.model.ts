@@ -1,5 +1,6 @@
 import { CreateUserRequestChildren } from './createUserRequest.model';
 import { TechnicalSupportRequestChildren } from './technical-support-request';
+import { TicketReassignRequestChildren } from './ticket-reassign-request.model';
 import { VoucherRequestChildren } from './voucher-request.model';
 
 export interface Ticket {
@@ -15,6 +16,7 @@ export interface Ticket {
   technicalSupportRequest?: TechnicalSupportRequestChildren;
   voucherRequest?: VoucherRequestChildren;
   createUserRequest?: CreateUserRequestChildren;
+  ticketReassignRequest?: TicketReassignRequestChildren;
 }
 
 export interface TicketStateEvent {
