@@ -6,7 +6,12 @@
 
   <div class="card-type">
     <span class="card-emoji">{{ ticket().request_type?.emoji ?? '📋' }}</span>
-    <span class="card-type-name">{{ ticket().request_type?.short_name ?? 'Solicitud' }}</span>
+    <span class="card-type-name">
+      {{ ticket().request_type?.short_name ?? 'Solicitud' }}
+      @if (ticket().voucherRequest?.voucher_code) {
+        : {{ ticket().voucherRequest?.voucher_code }}
+      }
+    </span>
   </div>
 
   <div class="card-footer">

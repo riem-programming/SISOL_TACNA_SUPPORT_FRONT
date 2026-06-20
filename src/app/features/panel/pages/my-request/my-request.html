@@ -108,6 +108,9 @@
                 <div class="flex items-baseline justify-between gap-2">
                   <span class="truncate text-base font-semibold">
                     {{ getRequestType(ticket.request_type_id)?.short_name }}
+                    @if (ticket.voucherRequest?.voucher_code) {
+                      : {{ ticket.voucherRequest?.voucher_code }}
+                    }
                   </span>
                   <span class="shrink-0 text-sm text-muted-foreground">
                     {{ formatTicketDate(ticket.createdAt) }}
